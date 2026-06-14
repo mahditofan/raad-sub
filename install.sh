@@ -1,24 +1,27 @@
 #!/bin/bash
 
-# مسیر یابی خودکار بر اساس خروجی دستور فیندی که زدی
+# ۱. پیدا کردن مسیر فایل سابسکریپشن روی سرور به صورت خودکار
 TARGET_FILE=$(find / -name "sub.html" 2>/dev/null | head -n 1)
 
-# اگر به هر دلیلی پیدا نشد، از مسیر پیش‌فرض استفاده کند
 if [ -z "$TARGET_FILE" ]; then
-    TARGET_FILE="/etc/x-ui/sub/sub.html"
+    echo "پوشه پیدا نشد، در حال ساخت مسیر پیش‌فرض..."
     mkdir -p "/etc/x-ui/sub"
+    TARGET_FILE="/etc/x-ui/sub/sub.html"
 fi
 
-# دانلود فایل HTML از گیت‌هاب شما (به جای تزریق مستقیم متنی برای جلوگیری از باگ کاراکترها)
-# لطفا آدرس زیر را با لینک raw فایل sub.html خودت در گیت‌هاب جایگزین کن:
-RAW_HTML_URL="https://raw.githubusercontent.com/monhacer/mahditofan/raad-sub/main/sub.html"
+# ۲. لینک دانلود فایل HTML خام از گیت‌هاب شما
+# آدرس زیر را دقیقا با یوزرنیم و اسم ریپازیتوری خودت جایگزین کن
+RAW_HTML_URL="https://raw.githubusercontent.com/mahditofan/raad-sub/main/sub.html"
 
-echo "در حال نصب قالب جدید در مسیر: $TARGET_FILE"
+echo "در حال دانلود قالب VeloX از گیت‌هاب و نصب در مسیر: $TARGET_FILE"
 
+# دانلود مستقیم فایل بدون آسیب زدن به کاراکترهای {{ }}
 curl -fsSL "$RAW_HTML_URL" -o "$TARGET_FILE"
 
 if [ $? -eq 0 ]; then
-    echo "✔ قالب بدون باگ VeloX با موفقیت نصب شد."
+    echo "========================================"
+    echo "✔ قالب VeloX با موفقیت از گیت‌هاب دانلود و نصب شد!"
+    echo "========================================"
 else
-    echo "❌ خطایی در دانلود فایل رخ داد."
+    echo "❌ خطایی در دانلود رخ داد. مطمئن شوید لینک گیت‌هاب درست است."
 fi
