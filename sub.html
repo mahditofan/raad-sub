@@ -41,7 +41,7 @@
         .usage-section { margin-bottom: 24px; margin-top: 10px; }
         .usage-header { display: flex; justify-content: space-between; font-size: 14px; }
         .progress-container { background: rgba(0,0,0,0.2); height: 10px; border-radius: 5px; overflow: hidden; margin: 12px 0; }
-        .progress-bar { height: 100%; background: linear-gradient(to right, var(--secondary), var(--primary)); width: 0%; border-radius: 5px; box-shadow: 0 0 10px var(--primary-glow); }
+        .progress-bar { height: 100%; background: linear-gradient(to right, var(--secondary), var(--primary)); width: {{.Percent}}%; border-radius: 5px; box-shadow: 0 0 10px var(--primary-glow); }
         
         .usage-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .usage-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--card-border); font-size: 13.5px; }
@@ -65,6 +65,9 @@
         #qrcode { background: white; padding: 10px; border-radius: 10px; display: inline-block; margin-bottom: 14px; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--primary); color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; transition: transform 0.3s ease; z-index: 2000; }
         .toast.show { transform: translateX(-50%) translateY(0); }
+        
+        /* مخفی کردن دیتای خامی که پنل رندر می‌کند */
+        #raw-links-holder { display: none; }
     </style>
 </head>
 <body data-theme="dark">
@@ -80,26 +83,26 @@
         <div class="usage-section">
             <div class="usage-header">
                 <span id="lbl-usage-status">وضعیت مصرف حجم</span>
-                <span id="usage-percent">0%</span>
+                <span id="usage-percent">{{.Percent}}%</span>
             </div>
             <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
             
             <div class="usage-list">
                 <div class="usage-row">
                     <span class="title"><i class="fa-solid fa-pie-chart"></i> <span id="lbl-total">حجم کل</span></span>
-                    <span class="value" id="total-traffic">-</span>
+                    <span class="value" id="total-traffic">{{.Total}}</span>
                 </div>
                 <div class="usage-row">
                     <span class="title"><i class="fa-solid fa-cloud-download"></i> <span id="lbl-used">مصرف شده</span></span>
-                    <span class="value" id="used-traffic">-</span>
+                    <span class="value" id="used-traffic">{{.Used}}</span>
                 </div>
                 <div class="usage-row">
                     <span class="title"><i class="fa-solid fa-hourglass-half"></i> <span id="lbl-rem">باقی‌مانده</span></span>
-                    <span class="value" id="remaining-traffic">-</span>
+                    <span class="value" id="remaining-traffic">{{.Remaining}}</span>
                 </div>
                 <div class="usage-row">
                     <span class="title"><i class="fa-solid fa-calendar-alt"></i> <span id="lbl-days">زمان باقی‌مانده</span></span>
-                    <span class="value" id="remaining-days" style="direction: rtl;">-</span>
+                    <span class="value" id="remaining-days" style="direction: rtl;">{{.Expiry}}</span>
                 </div>
             </div>
         </div>
@@ -126,74 +129,33 @@
         </div>
     </div>
 
+    <div id="raw-links-holder">{{.Links}}</div>
+
     <div class="modal" id="qr-modal" onclick="closeModal()"><div class="modal-content" onclick="event.stopPropagation()"><div id="qrcode"></div><br><button class="btn-action" onclick="closeModal()" id="lbl-close">بستن</button></div></div>
     <div class="toast" id="toast">کپی شد!</div>
 
     <script>
-        // بهینه‌سازی خواندن دیتای خام پنل به دو روش مستقیم و عددی
-        const rawTotal = '{{.Total}}';
-        const rawUp = '{{.Up}}';
-        const rawDown = '{{.Down}}';
-        
-        const stats = { 
-            total: parseFloat(rawTotal) || 0, 
-            up: parseFloat(rawUp) || 0, 
-            down: parseFloat(rawDown) || 0, 
-            expiry: '{{.Expiry}}', 
-            links: `{{.Links}}` 
-        };
-
         const i18n = {
-            fa: { status: "وضعیت مصرف حجم", total: "حجم کل", used: "مصرف شده", rem: "باقی‌مانده", days: "زمان باقی‌مانده", configs: "لیست اتصال‌ها", close: "بستن", toast: "با موفقیت کپی شد!", unlimited: "نامحدود" },
-            en: { status: "Data Status", total: "Total Data", used: "Used Data", rem: "Remaining", days: "Time Left", configs: "Profiles", close: "Close", toast: "Copied!", unlimited: "Unlimited" }
+            fa: { status: "وضعیت مصرف حجم", configs: "لیست اتصال‌ها", close: "بستن", toast: "با موفقیت کپی شد!" },
+            en: { status: "Data Status", configs: "Profiles", close: "Close", toast: "Copied!" }
         };
         let currentLang = 'fa';
 
-        function bytesToSize(bytes) { 
-            if (!bytes || bytes === 0 || isNaN(bytes)) return '0 B'; 
-            const k = 1024; 
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB']; 
-            const i = Math.floor(Math.log(bytes) / Math.log(k)); 
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]; 
-        }
-
-        function initData() {
-            const used = stats.up + stats.down; 
-            document.getElementById('used-traffic').innerText = bytesToSize(used);
-            
-            // بررسی دقیق حجم کل کاربر
-            if(stats.total > 0 && !rawTotal.includes('Total')) {
-                document.getElementById('total-traffic').innerText = bytesToSize(stats.total);
-                const rem = stats.total - used; 
-                document.getElementById('remaining-traffic').innerText = bytesToSize(rem > 0 ? rem : 0);
-                const percent = Math.min((used / stats.total) * 100, 100).toFixed(1);
-                document.getElementById('usage-percent').innerText = percent + '%'; 
-                document.getElementById('progress-bar').style.width = percent + '%';
-            } else { 
-                // اگر حجم نامحدود باشد یا متغیر خام توسط پنل مقداردهی نشود
-                document.getElementById('total-traffic').innerText = i18n[currentLang].unlimited; 
-                document.getElementById('remaining-traffic').innerText = i18n[currentLang].unlimited; 
-                document.getElementById('usage-percent').innerText = '0%'; 
-                document.getElementById('progress-bar').style.width = '0%';
-            }
-            
-            // بررسی وضعیت تاریخ انقضا
-            if(stats.expiry && !stats.expiry.includes('Expiry') && stats.expiry.trim() !== "") {
-                document.getElementById('remaining-days').innerText = stats.expiry;
-            } else {
-                document.getElementById('remaining-days').innerText = i18n[currentLang].unlimited;
-            }
-            
+        function initConfigs() {
             const configContainer = document.getElementById('configs-list'); 
             configContainer.innerHTML = '';
-            const rawLinks = stats.links.trim().split('\n');
+            
+            // خواندن لینک‌ها از تگ مخفی تزریق‌شده توسط پنل
+            const rawLinksText = document.getElementById('raw-links-holder').innerText || '';
+            const rawLinks = rawLinksText.trim().split('\n');
+            
             rawLinks.forEach((link, idx) => {
-                if(!link || link.includes('Links')) return; 
+                if(!link || link.includes('Links') || link.trim() === "") return; 
                 let name = "Config " + (idx + 1); 
                 try { if(link.includes('#')) name = decodeURIComponent(link.split('#')[1]); } catch(e){}
                 const card = document.createElement('div'); 
                 card.className = 'config-card';
-                card.innerHTML = `<div class="config-name">${name}</div><div class="config-actions"><button class="btn-action" onclick="copyText('${link}')"><i class="fa-regular fa-copy"></i></button><button class="btn-action" onclick="showQR('${link}')"><i class="fa-solid fa-qrcode"></i></button></div>`;
+                card.innerHTML = `<div class="config-name">${name}</div><div class="config-actions"><button class="btn-action" onclick="copyText('${link.trim()}')"><i class="fa-regular fa-copy"></i></button><button class="btn-action" onclick="showQR('${link.trim()}')"><i class="fa-solid fa-qrcode"></i></button></div>`;
                 configContainer.appendChild(card);
             });
         }
@@ -215,13 +177,8 @@
             document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
             document.getElementById('lang-btn').innerText = currentLang === 'fa' ? 'EN' : 'FA';
             document.getElementById('lbl-usage-status').innerText = i18n[currentLang].status; 
-            document.getElementById('lbl-total').innerText = i18n[currentLang].total;
-            document.getElementById('lbl-used').innerText = i18n[currentLang].used; 
-            document.getElementById('lbl-rem').innerText = i18n[currentLang].rem;
-            document.getElementById('lbl-days').innerText = i18n[currentLang].days; 
             document.getElementById('lbl-configs').innerText = i18n[currentLang].configs;
             document.getElementById('lbl-close').innerText = i18n[currentLang].close; 
-            initData();
         }
 
         function switchTab(tabId) { 
@@ -247,7 +204,9 @@
         }
 
         function closeModal() { document.getElementById('qr-modal').style.display = 'none'; }
-        initData();
+        
+        // اجرای مستقیم ساخت کانفیگ‌ها
+        initConfigs();
     </script>
 </body>
-    </html>
+                </html>
