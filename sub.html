@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -17,13 +25,16 @@
         
         body {
             font-family: 'Vazirmatn', sans-serif;
-            background: radial-gradient(circle at center, #0d0926 0%, #03020a 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            transition: background 0.4s ease, color 0.4s ease;
         }
 
-        /* افکت درخشندگی بنفش نئون در بک‌گراند */
+        body.dark {
+            background: radial-gradient(circle at center, #0d0926 0%, #03020a 100%);
+        }
+        body.light {
+            background: radial-gradient(circle at center, #f4f2ff 0%, #e2daf7 100%);
+        }
+
         .neon-glow {
             position: absolute;
             top: 10%;
@@ -31,23 +42,29 @@
             transform: translateX(-50%);
             width: 300px;
             height: 300px;
-            background: rgba(168, 85, 247, 0.15);
+            background: rgba(168, 85, 247, 0.2);
             filter: blur(120px);
             border-radius: 50%;
             pointer-events: none;
             z-index: 1;
         }
 
-        /* کارت فوق لوکس شیشه‌ای با حاشیه نئون بنفش و ارغوانی */
         .velox-card {
-            background: rgba(18, 12, 38, 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(168, 85, 247, 0.25);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(168, 85, 247, 0.1);
+            transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
+        }
+        body.dark .velox-card {
+            background: rgba(18, 12, 38, 0.8);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.15);
+        }
+        body.light .velox-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            box-shadow: 0 15px 35px rgba(168, 85, 247, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        /* نوار پیشرفت متحرک گرادینت بنفش و فوشیا */
         .velox-bar {
             background: linear-gradient(90deg, #a855f7, #ec4899, #6366f1, #a855f7);
             background-size: 200% 100%;
@@ -60,9 +77,13 @@
             100% { background-position: 200% 50%; }
         }
 
-        /* استایل اسکرول‌بار سفارشی و زیبا */
+        /* انیمیشن باز شدن نرم بخش QR Code */
+        #qrContainer {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
         ::-webkit-scrollbar-thumb { background: #a855f7; border-radius: 10px; }
         
         .animate-icon { animation: pulseIcon 3s infinite ease-in-out; }
@@ -70,110 +91,137 @@
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #a855f7); }
             50% { transform: scale(1.05); filter: drop-shadow(0 0 15px #ec4899); }
         }
+
+        /* تنظیم تضاد رنگی QR Code برای اسکن سریع‌تر در تاریکی */
+        #qrcode img {
+            display: inline-block;
+            border-radius: 12px;
+            padding: 8px;
+            background: white;
+        }
     </style>
 </head>
-<body class="p-4 flex items-center justify-center min-h-screen">
+<body class="dark p-4 flex items-center justify-center min-h-screen text-slate-200 dark:text-slate-200">
 
     <div class="neon-glow"></div>
 
     <div class="w-full max-w-md velox-card rounded-3xl p-6 relative z-10 my-auto overflow-hidden">
         
+        <div class="flex justify-between items-center mb-4 w-full px-1">
+            <button onclick="toggleLang()" id="langBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/30 px-3 py-1 rounded-xl text-xs font-bold transition-all active:scale-95">
+                EN
+            </button>
+            <button onclick="toggleTheme()" id="themeBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/30 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-95">
+                <i id="themeIcon" class="fa-solid fa-sun text-sm"></i>
+            </button>
+        </div>
+
         <div class="flex flex-col items-center mb-5">
             <div class="relative w-14 h-14 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg border border-purple-400 animate-icon">
                 <i class="fa-solid fa-bolt-lightning text-white text-2xl"></i>
             </div>
             <div class="mt-2 text-center">
-                <span class="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-white to-pink-400 font-mono">VELOX</span>
+                <span class="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-600 dark:via-white to-pink-400 font-mono">VELOX</span>
                 <div class="h-[2px] w-14 bg-gradient-to-r from-transparent via-purple-500 to-transparent mx-auto mt-0.5"></div>
             </div>
         </div>
 
         <div class="text-center mb-5">
-            <h1 class="text-sm font-bold text-slate-200 mb-1">
+            <h1 id="subTitleText" class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">
                 {{if .subTitle}}{{.subTitle}}{{else}}مدیریت و وضعیت اشتراک کاربر VeloX{{end}}
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
-                    <span class="bg-purple-500/10 text-purple-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-purple-500/30">
-                        <i class="fa-solid fa-circle-check ml-1 animate-pulse text-purple-400"></i> اتصال فعال و معتبر
+                    <span id="statusBadge" class="bg-purple-500/10 text-purple-600 dark:text-purple-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-purple-500/30">
+                        <i class="fa-solid fa-circle-check ml-1 animate-pulse"></i> <span id="statusActiveText">اتصال فعال و معتبر</span>
                     </span>
                 {{else}}
-                    <span class="bg-rose-500/20 text-rose-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-rose-500/40">
-                        <i class="fa-solid fa-circle-xmark ml-1"></i> اتصال منقضی یا غیرفعال
+                    <span id="statusBadge" class="bg-rose-500/20 text-rose-500 dark:text-rose-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-rose-500/40">
+                        <i class="fa-solid fa-circle-xmark ml-1"></i> <span id="statusInactiveText">اتصال منقضی یا غیرفعال</span>
                     </span>
                 {{end}}
             </div>
         </div>
 
-        <div class="bg-purple-950/20 border border-purple-900/40 p-4 rounded-2xl text-center mb-5 relative overflow-hidden">
-            <div class="text-xs text-purple-400 font-bold mb-2"><i class="fa-regular fa-clock ml-1"></i> زمان باقی‌مانده تا انقضای سرویس</div>
+        <div class="bg-purple-50/5 dark:bg-purple-950/20 border border-purple-500/20 dark:border-purple-900/40 p-4 rounded-2xl text-center mb-5 relative overflow-hidden">
+            <div id="lblTimeRemaining" class="text-xs text-purple-600 dark:text-purple-400 font-bold mb-2"><i class="fa-regular fa-clock ml-1"></i> زمان باقی‌مانده تا انقضای سرویس</div>
             
-            <div id="countdownBox" class="flex justify-center items-center gap-1.5 text-white my-2" dir="ltr">
-                <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-900/30 min-w-[48px]">
-                    <span id="live-days" class="text-xl font-black text-purple-400">00</span>
-                    <div class="text-[9px] text-slate-400 mt-0.5">روز</div>
+            <div id="countdownBox" class="flex justify-center items-center gap-1.5 text-slate-800 dark:text-white my-2" dir="ltr">
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                    <span id="live-days" class="text-xl font-black text-purple-600 dark:text-purple-400">00</span>
+                    <div id="lblDays" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">روز</div>
                 </div>
-                <span class="text-purple-400 font-bold animate-pulse">:</span>
-                <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-900/30 min-w-[48px]">
-                    <span id="live-hours" class="text-xl font-black text-slate-100">00</span>
-                    <div class="text-[9px] text-slate-400 mt-0.5">ساعت</div>
+                <span class="text-purple-500 font-bold animate-pulse">:</span>
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                    <span id="live-hours" class="text-xl font-black">00</span>
+                    <div id="lblHours" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">ساعت</div>
                 </div>
-                <span class="text-purple-400 font-bold animate-pulse">:</span>
-                <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-900/30 min-w-[48px]">
-                    <span id="live-mins" class="text-xl font-black text-slate-100">00</span>
-                    <div class="text-[9px] text-slate-400 mt-0.5">دقیقه</div>
+                <span class="text-purple-500 font-bold animate-pulse">:</span>
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                    <span id="live-mins" class="text-xl font-black">00</span>
+                    <div id="lblMinutes" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">دقیقه</div>
                 </div>
-                <span class="text-purple-400 font-bold animate-pulse">:</span>
-                <div class="bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-900/30 min-w-[48px]">
-                    <span id="live-secs" class="text-xl font-black text-pink-400">00</span>
-                    <div class="text-[9px] text-slate-400 mt-0.5">ثانیه</div>
+                <span class="text-purple-500 font-bold animate-pulse">:</span>
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                    <span id="live-secs" class="text-xl font-black text-pink-500">00</span>
+                    <div id="lblSeconds" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">ثانیه</div>
                 </div>
             </div>
             
-            <div id="shamsiDate" class="text-[11px] text-slate-400 mt-1.5">تاریخ انقضا: در حال محاسبه...</div>
+            <div id="shamsiDate" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">تاریخ انقضا: در حال محاسبه...</div>
         </div>
 
-        <div class="bg-black/40 border border-purple-950/50 p-4 rounded-2xl mb-5">
+        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/50 p-4 rounded-2xl mb-5">
             
-            <div class="w-full bg-slate-950 rounded-full h-3.5 overflow-hidden p-[2px] border border-purple-900/20 mb-4">
+            <div class="w-full bg-slate-200 dark:bg-slate-950 rounded-full h-3.5 overflow-hidden p-[2px] border border-purple-500/10 dark:border-purple-900/20 mb-4">
                 <div id="progressBar" class="velox-bar h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
 
             <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="bg-slate-950/50 p-2.5 rounded-xl border border-purple-950/60">
-                    <div class="text-[10px] text-slate-400 mb-0.5">مصرف شده</div>
-                    <div class="text-xs font-black text-pink-400 font-mono">{{.used}}</div>
+                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/60 shadow-sm">
+                    <div id="lblUsed" class="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">مصرف شده</div>
+                    <div class="text-xs font-black text-pink-500 font-mono">{{.used}}</div>
                 </div>
-                <div class="bg-slate-950/50 p-2.5 rounded-xl border border-purple-950/60">
-                    <div class="text-[10px] text-slate-400 mb-0.5">حجم باقیمانده</div>
-                    <div class="text-xs font-black text-emerald-400 font-mono">{{if eq .total "0"}}نامحدود{{else}}{{.remained}}{{end}}</div>
+                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/60 shadow-sm">
+                    <div id="lblRemaining" class="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">حجم باقیمانده</div>
+                    <div id="valRemained" class="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono">{{if eq .total "0"}}نامحدود{{else}}{{.remained}}{{end}}</div>
                 </div>
-                <div class="bg-slate-950/50 p-2.5 rounded-xl border border-purple-950/60">
-                    <div class="text-[10px] text-slate-400 mb-0.5">کل حجم اکانت</div>
-                    <div class="text-xs font-black text-purple-400 font-mono">{{if eq .total "0"}}نامحدود{{else}}{{.total}}{{end}}</div>
+                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/60 shadow-sm">
+                    <div id="lblTotal" class="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">کل حجم اکانت</div>
+                    <div id="valTotal" class="text-xs font-black text-purple-600 dark:text-purple-400 font-mono">{{if eq .total "0"}}نامحدود{{else}}{{.total}}{{end}}</div>
                 </div>
             </div>
 
-            <div class="flex justify-between text-[10px] text-slate-500 mt-3 px-1 border-t border-purple-950/30 pt-2">
-                <span><i class="fa-solid fa-arrow-down text-purple-500/70 ml-0.5"></i> دانلود: {{.download}}</span>
-                <span><i class="fa-solid fa-arrow-up text-pink-500/70 ml-0.5"></i> آپلود: {{.upload}}</span>
+            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-3 px-1 border-t border-purple-500/10 dark:border-purple-950/30 pt-2" id="trafficDetails">
+                <span><i class="fa-solid fa-arrow-down text-purple-500/70 ml-0.5"></i> <span id="lblDownload">دانلود:</span> {{.download}}</span>
+                <span><i class="fa-solid fa-arrow-up text-pink-500/70 ml-0.5"></i> <span id="lblUpload">آپلود:</span> {{.upload}}</span>
             </div>
         </div>
 
-        <div class="mb-5">
-            <button onclick="copyToClipboard('{{.subUrl}}')" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm py-3 px-4 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.25)] border border-purple-500/20">
+        <div class="grid grid-cols-5 gap-2 mb-5">
+            <button onclick="copyToClipboard('{{.subUrl}}')" class="col-span-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm py-3 px-3 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.25)] border border-purple-500/20">
                 <i class="fa-solid fa-copy"></i>
-                <span>کپی لینک اشتراک کلیک کنید</span>
+                <span id="btnCopySub">کپی لینک اشتراک کلیک کنید</span>
+            </button>
+            <button onclick="toggleQR()" class="col-span-1 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-500 dark:text-purple-400 rounded-xl flex items-center justify-center transition-all transform active:scale-95 shadow-sm" title="QR Code">
+                <i class="fa-solid fa-qrcode text-lg"></i>
             </button>
         </div>
 
-        <div class="bg-black/40 border border-purple-950/50 rounded-2xl p-4">
-            <div class="text-xs font-bold text-slate-300 mb-2.5 px-1"><i class="fa-solid fa-link ml-1 text-purple-400"></i> لیست اتصال‌ها و پروکسی‌ها</div>
+        <div id="qrContainer" class="max-h-0 opacity-0 overflow-hidden bg-white dark:bg-slate-950/60 border border-transparent rounded-2xl text-center mb-5 transition-all duration-300">
+            <div class="p-4 flex flex-col items-center justify-center">
+                <div id="lblQrDesc" class="text-xs font-bold text-slate-600 dark:text-purple-400 mb-3">اسکن تصویری بارکد اشتراک VeloX</div>
+                <div id="qrcode" class="bg-white p-2 rounded-xl border border-purple-500/20 inline-block shadow-md"></div>
+            </div>
+        </div>
+
+        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/50 rounded-2xl p-4">
+            <div id="lblConfigList" class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5 px-1"><i class="fa-solid fa-link ml-1 text-purple-500 dark:text-purple-400"></i> لیست اتصال‌ها و پروکسی‌ها</div>
             <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
                 {{range .links}}
-                <div class="bg-slate-950/80 border border-purple-950/40 p-2.5 rounded-xl flex items-center justify-between gap-3 text-[11px]">
-                    <span class="truncate font-mono text-slate-400 select-all text-left w-full" dir="ltr">{{.}}</span>
-                    <button onclick="copyToClipboard('{{.}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-md shadow-purple-900/30">
+                <div class="bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/40 p-2.5 rounded-xl flex items-center justify-between gap-3 text-[11px] shadow-sm">
+                    <span class="truncate font-mono text-slate-500 dark:text-slate-400 select-all text-left w-full" dir="ltr">{{.}}</span>
+                    <button onclick="copyToClipboard('{{.}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-sm">
                         کپی
                     </button>
                 </div>
@@ -193,7 +241,7 @@
     </div>
 
     <script>
-        // ۱. منطق و فرمول ریاضی نوار پیشرفت دقیقا مطابق با موتور پنل شما
+        // ۱. منطق محاسبه نوار پیشرفت حجم
         const totalByte = parseInt("{{.totalByte}}");
         const downloadByte = parseInt("{{.downloadByte}}");
         const uploadByte = parseInt("{{.uploadByte}}");
@@ -207,61 +255,199 @@
             document.getElementById('progressBar').style.width = '100%';
         }
 
-        // ۲. سیستم تاریخ انقضا و ثانیه‌شمار زنده
-        function startLiveCountdown() {
-            const expireTimestamp = parseInt("{{.expire}}");
+        // ۲. ساخت خودکار QR Code بر اساس لینک بومی کاربر
+        const subUrlValue = "{{.subUrl}}";
+        if(subUrlValue && subUrlValue !== "") {
+            new QRCode(document.getElementById("qrcode"), {
+                text: subUrlValue,
+                width: 140,
+                height: 140,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        // سیستم باز و بسته کردن باکس بارکد
+        let qrVisible = false;
+        function toggleQR() {
+            const container = document.getElementById('qrContainer');
+            if(!qrVisible) {
+                container.style.maxHeight = "240px";
+                container.style.opacity = "1";
+                container.classList.remove('border-transparent');
+                container.classList.add('border-purple-500/20', 'mt-2');
+            } else {
+                container.style.maxHeight = "0";
+                container.style.opacity = "0";
+                container.classList.remove('border-purple-500/20', 'mt-2');
+                container.classList.add('border-transparent');
+            }
+            qrVisible = !qrVisible;
+        }
+
+        // ۳. ساختار ترجمه چندزبانه (فارسی / انگلیسی)
+        let currentLang = 'fa';
+        const langData = {
+            fa: {
+                title: "{{if .subTitle}}{{.subTitle}}{{else}}مدیریت و وضعیت اشتراک کاربر VeloX{{end}}",
+                active: "اتصال فعال و معتبر",
+                inactive: "اتصال منقضی یا غیرفعال",
+                timeRemaining: "زمان باقی‌مانده تا انقضای سرویس",
+                days: "روز", hours: "ساعت", minutes: "دقیقه", seconds: "ثانیه",
+                used: "مصرف شده", remaining: "حجم باقیمانده", total: "کل حجم اکانت",
+                download: "دانلود:", upload: "آپلود:",
+                copySub: "کپی لینک اشتراک کلیک کنید",
+                configList: "لیست اتصال‌ها و پروکسی‌ها",
+                qrDesc: "اسکن تصویری بارکد اشتراک VeloX",
+                unlimited: "نامحدود",
+                expiryLabel: "تاریخ انقضا: ",
+                noExpiry: "اعتبار اتصال: بدون انقضا",
+                copySuccess: "با موفقیت در حافظه کپی شد.",
+                copyFail: "خطا در کپی سیگنال اشتراک!",
+                langBtn: "EN"
+            },
+            en: {
+                title: "VeloX User Subscription Status",
+                active: "Active Connection",
+                inactive: "Expired or Inactive Connection",
+                timeRemaining: "Time Remaining Until Subscription Expires",
+                days: "Days", hours: "Hours", minutes: "Mins", seconds: "Secs",
+                used: "Used", remaining: "Remaining", total: "Total Data",
+                download: "Download:", upload: "Upload:",
+                copySub: "Click to Copy Subscription Link",
+                configList: "Proxies & Connections List",
+                qrDesc: "Scan VeloX Subscription QR Code",
+                unlimited: "Unlimited",
+                expiryLabel: "Expiry Date: ",
+                noExpiry: "Connection Validity: No Expiry",
+                copySuccess: "Successfully copied to clipboard.",
+                copyFail: "Failed to copy to clipboard!",
+                langBtn: "FA"
+            }
+        };
+
+        function toggleLang() {
+            currentLang = currentLang === 'fa' ? 'en' : 'fa';
+            const data = langData[currentLang];
+            
+            document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
+            document.getElementById('langBtn').innerText = data.langBtn;
+
+            document.getElementById('subTitleText').innerText = data.title;
+            if (document.getElementById('statusActiveText')) document.getElementById('statusActiveText').innerText = data.active;
+            if (document.getElementById('statusInactiveText')) document.getElementById('statusInactiveText').innerText = data.inactive;
+            document.getElementById('lblTimeRemaining').innerHTML = `<i class="fa-regular fa-clock ${currentLang === 'fa' ? 'ml-1' : 'mr-1'}"></i> ` + data.timeRemaining;
+            
+            document.getElementById('lblDays').innerText = data.days;
+            document.getElementById('lblHours').innerText = data.hours;
+            document.getElementById('lblMinutes').innerText = data.minutes;
+            document.getElementById('lblSeconds').innerText = data.seconds;
+
+            document.getElementById('lblUsed').innerText = data.used;
+            document.getElementById('lblRemaining').innerText = data.remaining;
+            document.getElementById('lblTotal').innerText = data.total;
+            
+            document.getElementById('lblDownload').innerText = data.download;
+            document.getElementById('lblUpload').innerText = data.upload;
+            document.getElementById('btnCopySub').innerText = data.copySub;
+            document.getElementById('lblQrDesc').innerText = data.qrDesc;
+            document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ${currentLang === 'fa' ? 'ml-1' : 'mr-1'} text-purple-500"></i> ` + data.configList;
+
+            if ("{{.total}}" === "0") {
+                document.getElementById('valRemained').innerText = data.unlimited;
+                document.getElementById('valTotal').innerText = data.unlimited;
+            }
+
+            updateClockAndDate();
+        }
+
+        // ۴. سیستم تاریخ انقضا و ثانیه‌شمار زنده
+        const expireTimestamp = parseInt("{{.expire}}");
+        
+        function updateClockAndDate() {
+            const data = langData[currentLang];
             
             if (!expireTimestamp || expireTimestamp === 0) {
-                document.getElementById('countdownBox').innerHTML = `<span class="text-purple-400 font-bold text-lg">نامحدود (دائمی)</span>`;
-                document.getElementById('shamsiDate').innerText = "اعتبار اتصال: بدون انقضا";
+                document.getElementById('countdownBox').innerHTML = `<span class="text-purple-600 dark:text-purple-400 font-bold text-lg">${data.unlimited}</span>`;
+                document.getElementById('shamsiDate').innerText = data.noExpiry;
                 return;
             }
 
             const expireMs = expireTimestamp * 1000;
 
             try {
+                const locale = currentLang === 'fa' ? 'fa-IR' : 'en-US';
                 const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                const shamsiStr = new Intl.DateTimeFormat('fa-IR', options).format(new Date(expireMs));
-                document.getElementById('shamsiDate').innerText = "تاریخ انقضا: " + shamsiStr;
+                const dateStr = new Intl.DateTimeFormat(locale, options).format(new Date(expireMs));
+                document.getElementById('shamsiDate').innerText = data.expiryLabel + dateStr;
             } catch (e) {
-                document.getElementById('shamsiDate').innerText = "خطا در پردازش تاریخ شمسی";
+                document.getElementById('shamsiDate').innerText = "";
             }
 
-            function updateClock() {
-                const nowMs = Date.now();
-                const diffMs = expireMs - nowMs;
+            const nowMs = Date.now();
+            const diffMs = expireMs - nowMs;
 
-                if (diffMs <= 0) {
-                    document.getElementById('countdownBox').innerHTML = `<span class="text-rose-500 font-bold text-xs">زمان مأموریت اکانت به پایان رسیده است!</span>`;
-                    return;
+            if (diffMs <= 0) {
+                document.getElementById('countdownBox').innerHTML = `<span class="text-rose-500 font-bold text-xs">Subscription has expired! / سرویس منقضی شده است</span>`;
+                return;
+            }
+
+            const totalSecs = Math.floor(diffMs / 1000);
+            const secs = totalSecs % 60;
+            const totalMins = Math.floor(totalSecs / 60);
+            const mins = totalMins % 60;
+            const totalHours = Math.floor(totalMins / 60);
+            const hours = totalHours % 24;
+            const days = Math.floor(totalHours / 24);
+
+            const formatNum = num => {
+                let s = String(num).padStart(2, '0');
+                if (currentLang === 'fa') {
+                    const f = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+                    return s.replace(/[0-9]/g, w => f[+w]);
                 }
+                return s;
+            };
 
-                const totalSecs = Math.floor(diffMs / 1000);
-                const secs = totalSecs % 60;
-                const totalMins = Math.floor(totalSecs / 60);
-                const mins = totalMins % 60;
-                const totalHours = Math.floor(totalMins / 60);
-                const hours = totalHours % 24;
-                const days = Math.floor(totalHours / 24);
-
-                document.getElementById('live-days').innerText = String(days).padStart(2, '0');
-                document.getElementById('live-hours').innerText = String(hours).padStart(2, '0');
-                document.getElementById('live-mins').innerText = String(mins).padStart(2, '0');
-                document.getElementById('live-secs').innerText = String(secs).padStart(2, '0');
-            }
-
-            updateClock();
-            setInterval(updateClock, 1000);
+            document.getElementById('live-days').innerText = formatNum(days);
+            document.getElementById('live-hours').innerText = formatNum(hours);
+            document.getElementById('live-mins').innerText = formatNum(mins);
+            document.getElementById('live-secs').innerText = formatNum(secs);
         }
 
-        startLiveCountdown();
+        if (expireTimestamp && expireTimestamp > 0) {
+            setInterval(updateClockAndDate, 1000);
+        }
+        updateClockAndDate();
 
-        // ۳. سیستم کپی سراسری در کلیپ‌بورد گوشی
+        // ۵. سیستم سوییچ بین تم سفید و مشکی (با حفظ لوکس بودن رنگ بنفش)
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                body.classList.remove('text-slate-200');
+                body.classList.add('text-slate-800');
+                themeIcon.className = 'fa-solid fa-moon text-sm';
+            } else {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                body.classList.remove('text-slate-800');
+                body.classList.add('text-slate-200');
+                themeIcon.className = 'fa-solid fa-sun text-sm';
+            }
+        }
+
+        // ۶. سیستم کپی در حافظه موقت (کلیپ‌بورد)
         function copyToClipboard(text) {
+            const data = langData[currentLang];
             navigator.clipboard.writeText(text).then(() => {
-                showToast("با موفقیت در حافظه کپی شد.");
+                showToast(data.copySuccess);
             }).catch(() => {
-                showToast("خطا در کپی سیگنال اشتراک!");
+                showToast(data.copyFail);
             });
         }
 
@@ -275,4 +461,4 @@
         }
     </script>
 </body>
-    </html>
+                    </html>
