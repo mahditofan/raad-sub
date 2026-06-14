@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{if .subTitle}}{{.subTitle}}{{else}}VeloX Subscription{{end}}</title>
+    <title>{{if .name}}{{.name}}{{else if .subTitle}}{{.subTitle}}{{else}}VeloX Subscription{{end}}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
@@ -125,10 +125,10 @@
         </div>
 
         <div class="text-center mb-5">
-            <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
+            <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1.5 flex-wrap">
                 <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
-                <span id="subTitleUsername" class="text-purple-600 dark:text-purple-400 font-mono font-black select-all px-1.5 py-0.5 bg-purple-500/5 rounded-md border border-purple-500/10">
-                    {{if .user}}{{.user}}{{else if .subTitle}}{{.subTitle}}{{else}}User{{end}}
+                <span id="subTitleUsername" class="text-purple-600 dark:text-purple-400 font-mono font-black select-all px-2 py-0.5 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    {{if .name}}{{.name}}{{else if .user}}{{.user}}{{else}}Client{{end}}
                 </span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
@@ -327,7 +327,7 @@
             }
         };
 
-        // فیلتر کردن و تمیز کردن متون نام کاربری طولانی احتمالی از سمت پنل
+        // تمیز کردن بخش‌های زائد نام کاربری (در صورت وجود کاراکتر جداکننده در پنل)
         function cleanUsernameDisplay() {
             const nameEl = document.getElementById('subTitleUsername');
             let rawName = nameEl.innerText.trim();
@@ -472,4 +472,4 @@
         }
     </script>
 </body>
-                </html>
+    </html>
