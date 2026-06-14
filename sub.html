@@ -172,7 +172,6 @@
 
         <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/40 p-4 rounded-2xl mb-5">
             
-            <!-- نوار ضخیم و واضح برای تم مشکی -->
             <div class="w-full bg-slate-300 dark:bg-slate-900 rounded-full h-5 overflow-hidden p-[3px] border border-slate-400 dark:border-purple-500/50 mb-4 shadow-inner">
                 <div id="progressBar" class="velox-bar h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
@@ -199,8 +198,9 @@
         </div>
 
         <div class="flex gap-2 mb-5">
-            <button onclick="toggleQR()" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 w-12 h-12 rounded-xl flex items-center justify-center transition-all transform active:scale-95 shrink-0 shadow-sm" title="QR Code">
+            <button onclick="toggleQR()" class="px-4 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 h-12 rounded-xl flex items-center justify-center transition-all transform active:scale-95 shrink-0 shadow-sm gap-2 text-xs font-bold" title="QR Code">
                 <i class="fa-solid fa-qrcode text-lg"></i>
+                <span id="btnQrText">کیو‌آر کد</span>
             </button>
             <button onclick="copyToClipboard('{{.subUrl}}')" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm h-12 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.25)] border border-purple-500/20">
                 <i class="fa-solid fa-copy"></i>
@@ -210,7 +210,7 @@
 
         <div id="qrContainer" class="max-h-0 opacity-0 overflow-hidden bg-white dark:bg-slate-950/40 border border-transparent rounded-2xl text-center mb-5 transition-all duration-300">
             <div class="p-4 flex flex-col items-center justify-center">
-                <div id="lblQrDesc" class="text-xs font-bold text-slate-600 dark:text-purple-400 mb-3">اسکن تصویری بارکد اشتراک VeloX</div>
+                <div id="lblQrDesc" class="text-xs font-bold text-slate-600 dark:text-purple-400 mb-3">اسکن تصویری بارکد اشتراک</div>
                 <div id="qrcode" class="bg-white p-2 rounded-xl border border-purple-500/10 inline-block shadow-md"></div>
             </div>
         </div>
@@ -298,7 +298,8 @@
                 download: "دانلود:", upload: "آپلود:",
                 copySub: "کپی لینک اشتراک کلیک کنید",
                 configList: "لینک‌ کانفیگ ها",
-                qrDesc: "اسکن تصویری بارکد اشتراک VeloX",
+                qrDesc: "اسکن تصویری بارکد اشتراک",
+                qrText: "کیو‌آر کد",
                 unlimited: "نامحدود",
                 expiryLabel: "تاریخ انقضا: ",
                 noExpiry: "اعتبار اتصال: بدون انقضا",
@@ -316,7 +317,8 @@
                 download: "Download:", upload: "Upload:",
                 copySub: "Click to Copy Subscription Link",
                 configList: "Configs List",
-                qrDesc: "Scan VeloX Subscription QR Code",
+                qrDesc: "Scan Subscription QR Code",
+                qrText: "QR Code",
                 unlimited: "Unlimited",
                 expiryLabel: "Expiry Date: ",
                 noExpiry: "Connection Validity: No Expiry",
@@ -351,6 +353,7 @@
             document.getElementById('lblUpload').innerText = data.upload;
             document.getElementById('btnCopySub').innerText = data.copySub;
             document.getElementById('lblQrDesc').innerText = data.qrDesc;
+            document.getElementById('btnQrText').innerText = data.qrText;
             document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ${currentLang === 'fa' ? 'ml-1' : 'mr-1'} text-purple-500"></i> ` + data.configList;
 
             if ("{{.total}}" === "0") {
@@ -460,4 +463,4 @@
         }
     </script>
 </body>
-    </html>
+        </html>
