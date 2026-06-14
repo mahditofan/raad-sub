@@ -38,7 +38,6 @@
         .controls { display: flex; gap: 10px; }
         .btn-icon { background: var(--card-border); border: none; color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        /* Usage Section Fixed styling */
         .usage-section { margin-bottom: 24px; margin-top: 10px; }
         .usage-header { display: flex; justify-content: space-between; font-size: 14px; }
         .progress-container { background: rgba(0,0,0,0.2); height: 10px; border-radius: 5px; overflow: hidden; margin: 12px 0; }
@@ -131,11 +130,15 @@
     <div class="toast" id="toast">کپی شد!</div>
 
     <script>
-        // دیتای دریافتی مستقیم از قالب ثنایی
+        // بهینه‌سازی خواندن دیتای خام پنل به دو روش مستقیم و عددی
+        const rawTotal = '{{.Total}}';
+        const rawUp = '{{.Up}}';
+        const rawDown = '{{.Down}}';
+        
         const stats = { 
-            total: parseFloat('{{.Total}}') || 0, 
-            up: parseFloat('{{.Up}}') || 0, 
-            down: parseFloat('{{.Down}}') || 0, 
+            total: parseFloat(rawTotal) || 0, 
+            up: parseFloat(rawUp) || 0, 
+            down: parseFloat(rawDown) || 0, 
             expiry: '{{.Expiry}}', 
             links: `{{.Links}}` 
         };
@@ -147,7 +150,7 @@
         let currentLang = 'fa';
 
         function bytesToSize(bytes) { 
-            if (bytes === 0) return '0 B'; 
+            if (!bytes || bytes === 0 || isNaN(bytes)) return '0 B'; 
             const k = 1024; 
             const sizes = ['B', 'KB', 'MB', 'GB', 'TB']; 
             const i = Math.floor(Math.log(bytes) / Math.log(k)); 
@@ -158,7 +161,8 @@
             const used = stats.up + stats.down; 
             document.getElementById('used-traffic').innerText = bytesToSize(used);
             
-            if(stats.total > 0) {
+            // بررسی دقیق حجم کل کاربر
+            if(stats.total > 0 && !rawTotal.includes('Total')) {
                 document.getElementById('total-traffic').innerText = bytesToSize(stats.total);
                 const rem = stats.total - used; 
                 document.getElementById('remaining-traffic').innerText = bytesToSize(rem > 0 ? rem : 0);
@@ -166,19 +170,25 @@
                 document.getElementById('usage-percent').innerText = percent + '%'; 
                 document.getElementById('progress-bar').style.width = percent + '%';
             } else { 
+                // اگر حجم نامحدود باشد یا متغیر خام توسط پنل مقداردهی نشود
                 document.getElementById('total-traffic').innerText = i18n[currentLang].unlimited; 
                 document.getElementById('remaining-traffic').innerText = i18n[currentLang].unlimited; 
                 document.getElementById('usage-percent').innerText = '0%'; 
                 document.getElementById('progress-bar').style.width = '0%';
             }
             
-            document.getElementById('remaining-days').innerText = stats.expiry ? stats.expiry : i18n[currentLang].unlimited;
+            // بررسی وضعیت تاریخ انقضا
+            if(stats.expiry && !stats.expiry.includes('Expiry') && stats.expiry.trim() !== "") {
+                document.getElementById('remaining-days').innerText = stats.expiry;
+            } else {
+                document.getElementById('remaining-days').innerText = i18n[currentLang].unlimited;
+            }
             
             const configContainer = document.getElementById('configs-list'); 
             configContainer.innerHTML = '';
             const rawLinks = stats.links.trim().split('\n');
             rawLinks.forEach((link, idx) => {
-                if(!link) return; 
+                if(!link || link.includes('Links')) return; 
                 let name = "Config " + (idx + 1); 
                 try { if(link.includes('#')) name = decodeURIComponent(link.split('#')[1]); } catch(e){}
                 const card = document.createElement('div'); 
@@ -240,4 +250,4 @@
         initData();
     </script>
 </body>
-    </html>
+                                                                                                                                                                           </html>
