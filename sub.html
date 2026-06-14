@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VeloX Subscription</title>
+    <title>{{if .subTitle}}{{.subTitle}}{{else}}VeloX Subscription{{end}}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
@@ -55,13 +55,13 @@
             transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
         }
         body.dark .velox-card {
-            background: rgba(18, 12, 38, 0.8);
-            border: 1px solid rgba(168, 85, 247, 0.3);
+            background: rgba(18, 12, 38, 0.85);
+            border: 1px solid rgba(168, 85, 247, 0.25);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.15);
         }
         body.light .velox-card {
             background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(168, 85, 247, 0.4);
+            border: 1px solid rgba(168, 85, 247, 0.35);
             box-shadow: 0 15px 35px rgba(168, 85, 247, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
@@ -77,7 +77,6 @@
             100% { background-position: 200% 50%; }
         }
 
-        /* انیمیشن باز شدن نرم بخش QR Code */
         #qrContainer {
             transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
         }
@@ -92,7 +91,6 @@
             50% { transform: scale(1.05); filter: drop-shadow(0 0 15px #ec4899); }
         }
 
-        /* تنظیم تضاد رنگی QR Code برای اسکن سریع‌تر در تاریکی */
         #qrcode img {
             display: inline-block;
             border-radius: 12px;
@@ -107,16 +105,16 @@
 
     <div class="w-full max-w-md velox-card rounded-3xl p-6 relative z-10 my-auto overflow-hidden">
         
-        <div class="flex justify-between items-center mb-4 w-full px-1">
-            <button onclick="toggleLang()" id="langBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/30 px-3 py-1 rounded-xl text-xs font-bold transition-all active:scale-95">
-                EN
-            </button>
-            <button onclick="toggleTheme()" id="themeBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/30 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-95">
+        <div class="flex justify-between items-center mb-2 w-full px-1">
+            <button onclick="toggleTheme()" id="themeBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-95">
                 <i id="themeIcon" class="fa-solid fa-sun text-sm"></i>
+            </button>
+            <button onclick="toggleLang()" id="langBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 px-3 py-1 rounded-xl text-xs font-bold font-mono transition-all active:scale-95">
+                EN
             </button>
         </div>
 
-        <div class="flex flex-col items-center mb-5">
+        <div class="flex flex-col items-center mb-4">
             <div class="relative w-14 h-14 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg border border-purple-400 animate-icon">
                 <i class="fa-solid fa-bolt-lightning text-white text-2xl"></i>
             </div>
@@ -127,42 +125,45 @@
         </div>
 
         <div class="text-center mb-5">
-            <h1 id="subTitleText" class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">
-                {{if .subTitle}}{{.subTitle}}{{else}}مدیریت و وضعیت اشتراک کاربر VeloX{{end}}
+            <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
+                <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
+                <span id="subTitleUsername" class="text-purple-600 dark:text-purple-400 font-mono font-black select-all px-1.5 py-0.5 bg-purple-500/5 rounded-md border border-purple-500/10">
+                    {{if .user}}{{.user}}{{else if .subTitle}}{{.subTitle}}{{else}}User{{end}}
+                </span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
-                    <span id="statusBadge" class="bg-purple-500/10 text-purple-600 dark:text-purple-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-purple-500/30">
+                    <span id="statusBadge" class="bg-purple-500/10 text-purple-600 dark:text-purple-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-purple-500/20">
                         <i class="fa-solid fa-circle-check ml-1 animate-pulse"></i> <span id="statusActiveText">اتصال فعال و معتبر</span>
                     </span>
                 {{else}}
-                    <span id="statusBadge" class="bg-rose-500/20 text-rose-500 dark:text-rose-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-rose-500/40">
+                    <span id="statusBadge" class="bg-rose-500/20 text-rose-500 dark:text-rose-400 px-3 py-0.5 rounded-full text-[11px] font-bold border border-rose-500/30">
                         <i class="fa-solid fa-circle-xmark ml-1"></i> <span id="statusInactiveText">اتصال منقضی یا غیرفعال</span>
                     </span>
                 {{end}}
             </div>
         </div>
 
-        <div class="bg-purple-50/5 dark:bg-purple-950/20 border border-purple-500/20 dark:border-purple-900/40 p-4 rounded-2xl text-center mb-5 relative overflow-hidden">
+        <div class="bg-purple-50/5 dark:bg-purple-950/10 border border-purple-500/15 dark:border-purple-900/30 p-4 rounded-2xl text-center mb-5 relative overflow-hidden">
             <div id="lblTimeRemaining" class="text-xs text-purple-600 dark:text-purple-400 font-bold mb-2"><i class="fa-regular fa-clock ml-1"></i> زمان باقی‌مانده تا انقضای سرویس</div>
             
             <div id="countdownBox" class="flex justify-center items-center gap-1.5 text-slate-800 dark:text-white my-2" dir="ltr">
-                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/10 dark:border-purple-900/20 min-w-[48px] shadow-sm">
                     <span id="live-days" class="text-xl font-black text-purple-600 dark:text-purple-400">00</span>
                     <div id="lblDays" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">روز</div>
                 </div>
                 <span class="text-purple-500 font-bold animate-pulse">:</span>
-                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/10 dark:border-purple-900/20 min-w-[48px] shadow-sm">
                     <span id="live-hours" class="text-xl font-black">00</span>
                     <div id="lblHours" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">ساعت</div>
                 </div>
                 <span class="text-purple-500 font-bold animate-pulse">:</span>
-                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/10 dark:border-purple-900/20 min-w-[48px] shadow-sm">
                     <span id="live-mins" class="text-xl font-black">00</span>
                     <div id="lblMinutes" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">دقیقه</div>
                 </div>
                 <span class="text-purple-500 font-bold animate-pulse">:</span>
-                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/20 dark:border-purple-900/30 min-w-[48px] shadow-sm">
+                <div class="bg-white dark:bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-purple-500/10 dark:border-purple-900/20 min-w-[48px] shadow-sm">
                     <span id="live-secs" class="text-xl font-black text-pink-500">00</span>
                     <div id="lblSeconds" class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">ثانیه</div>
                 </div>
@@ -171,55 +172,55 @@
             <div id="shamsiDate" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">تاریخ انقضا: در حال محاسبه...</div>
         </div>
 
-        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/50 p-4 rounded-2xl mb-5">
+        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/40 p-4 rounded-2xl mb-5">
             
-            <div class="w-full bg-slate-200 dark:bg-slate-950 rounded-full h-3.5 overflow-hidden p-[2px] border border-purple-500/10 dark:border-purple-900/20 mb-4">
+            <div class="w-full bg-slate-200 dark:bg-slate-950 rounded-full h-3.5 overflow-hidden p-[2px] border border-purple-500/10 dark:border-purple-900/10 mb-4">
                 <div id="progressBar" class="velox-bar h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
 
             <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/50 shadow-sm">
                     <div id="lblUsed" class="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">مصرف شده</div>
                     <div class="text-xs font-black text-pink-500 font-mono">{{.used}}</div>
                 </div>
-                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/50 shadow-sm">
                     <div id="lblRemaining" class="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">حجم باقیمانده</div>
                     <div id="valRemained" class="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono">{{if eq .total "0"}}نامحدود{{else}}{{.remained}}{{end}}</div>
                 </div>
-                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/60 shadow-sm">
+                <div class="bg-white dark:bg-slate-950/50 p-2.5 rounded-xl border border-purple-500/10 dark:border-purple-950/50 shadow-sm">
                     <div id="lblTotal" class="text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">کل حجم اکانت</div>
                     <div id="valTotal" class="text-xs font-black text-purple-600 dark:text-purple-400 font-mono">{{if eq .total "0"}}نامحدود{{else}}{{.total}}{{end}}</div>
                 </div>
             </div>
 
-            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-3 px-1 border-t border-purple-500/10 dark:border-purple-950/30 pt-2" id="trafficDetails">
+            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-3 px-1 border-t border-purple-500/10 dark:border-purple-950/20 pt-2" id="trafficDetails">
                 <span><i class="fa-solid fa-arrow-down text-purple-500/70 ml-0.5"></i> <span id="lblDownload">دانلود:</span> {{.download}}</span>
                 <span><i class="fa-solid fa-arrow-up text-pink-500/70 ml-0.5"></i> <span id="lblUpload">آپلود:</span> {{.upload}}</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-5 gap-2 mb-5">
-            <button onclick="copyToClipboard('{{.subUrl}}')" class="col-span-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm py-3 px-3 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.25)] border border-purple-500/20">
+        <div class="flex gap-2 mb-5">
+            <button onclick="toggleQR()" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 w-12 h-12 rounded-xl flex items-center justify-center transition-all transform active:scale-95 shrink-0 shadow-sm" title="QR Code">
+                <i class="fa-solid fa-qrcode text-lg"></i>
+            </button>
+            <button onclick="copyToClipboard('{{.subUrl}}')" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm h-12 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.25)] border border-purple-500/20">
                 <i class="fa-solid fa-copy"></i>
                 <span id="btnCopySub">کپی لینک اشتراک کلیک کنید</span>
             </button>
-            <button onclick="toggleQR()" class="col-span-1 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-500 dark:text-purple-400 rounded-xl flex items-center justify-center transition-all transform active:scale-95 shadow-sm" title="QR Code">
-                <i class="fa-solid fa-qrcode text-lg"></i>
-            </button>
         </div>
 
-        <div id="qrContainer" class="max-h-0 opacity-0 overflow-hidden bg-white dark:bg-slate-950/60 border border-transparent rounded-2xl text-center mb-5 transition-all duration-300">
+        <div id="qrContainer" class="max-h-0 opacity-0 overflow-hidden bg-white dark:bg-slate-950/40 border border-transparent rounded-2xl text-center mb-5 transition-all duration-300">
             <div class="p-4 flex flex-col items-center justify-center">
                 <div id="lblQrDesc" class="text-xs font-bold text-slate-600 dark:text-purple-400 mb-3">اسکن تصویری بارکد اشتراک VeloX</div>
-                <div id="qrcode" class="bg-white p-2 rounded-xl border border-purple-500/20 inline-block shadow-md"></div>
+                <div id="qrcode" class="bg-white p-2 rounded-xl border border-purple-500/10 inline-block shadow-md"></div>
             </div>
         </div>
 
-        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/50 rounded-2xl p-4">
+        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/40 rounded-2xl p-4">
             <div id="lblConfigList" class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5 px-1"><i class="fa-solid fa-link ml-1 text-purple-500 dark:text-purple-400"></i> لیست اتصال‌ها و پروکسی‌ها</div>
             <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
                 {{range .links}}
-                <div class="bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/40 p-2.5 rounded-xl flex items-center justify-between gap-3 text-[11px] shadow-sm">
+                <div class="bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl flex items-center justify-between gap-3 text-[11px] shadow-sm">
                     <span class="truncate font-mono text-slate-500 dark:text-slate-400 select-all text-left w-full" dir="ltr">{{.}}</span>
                     <button onclick="copyToClipboard('{{.}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-sm">
                         کپی
@@ -241,7 +242,7 @@
     </div>
 
     <script>
-        // ۱. منطق محاسبه نوار پیشرفت حجم
+        // ۱. منطق نوار مصرف حجم اکانت
         const totalByte = parseInt("{{.totalByte}}");
         const downloadByte = parseInt("{{.downloadByte}}");
         const uploadByte = parseInt("{{.uploadByte}}");
@@ -255,7 +256,7 @@
             document.getElementById('progressBar').style.width = '100%';
         }
 
-        // ۲. ساخت خودکار QR Code بر اساس لینک بومی کاربر
+        // ۲. رندر خودکار کد QR از روی لینک اشتراک بومی پنل
         const subUrlValue = "{{.subUrl}}";
         if(subUrlValue && subUrlValue !== "") {
             new QRCode(document.getElementById("qrcode"), {
@@ -268,7 +269,6 @@
             });
         }
 
-        // سیستم باز و بسته کردن باکس بارکد
         let qrVisible = false;
         function toggleQR() {
             const container = document.getElementById('qrContainer');
@@ -286,11 +286,11 @@
             qrVisible = !qrVisible;
         }
 
-        // ۳. ساختار ترجمه چندزبانه (فارسی / انگلیسی)
+        // ۳. پایگاه داده چندزبانه (فارسی و انگلیسی)
         let currentLang = 'fa';
         const langData = {
             fa: {
-                title: "{{if .subTitle}}{{.subTitle}}{{else}}مدیریت و وضعیت اشتراک کاربر VeloX{{end}}",
+                staticTitle: "مدیریت و وضعیت اشتراک کاربر",
                 active: "اتصال فعال و معتبر",
                 inactive: "اتصال منقضی یا غیرفعال",
                 timeRemaining: "زمان باقی‌مانده تا انقضای سرویس",
@@ -308,7 +308,7 @@
                 langBtn: "EN"
             },
             en: {
-                title: "VeloX User Subscription Status",
+                staticTitle: "Subscription Status for",
                 active: "Active Connection",
                 inactive: "Expired or Inactive Connection",
                 timeRemaining: "Time Remaining Until Subscription Expires",
@@ -327,6 +327,17 @@
             }
         };
 
+        // فیلتر کردن و تمیز کردن متون نام کاربری طولانی احتمالی از سمت پنل
+        function cleanUsernameDisplay() {
+            const nameEl = document.getElementById('subTitleUsername');
+            let rawName = nameEl.innerText.trim();
+            if(rawName.includes('|')) {
+                rawName = rawName.split('|')[0].trim();
+            }
+            nameEl.innerText = rawName;
+        }
+        cleanUsernameDisplay();
+
         function toggleLang() {
             currentLang = currentLang === 'fa' ? 'en' : 'fa';
             const data = langData[currentLang];
@@ -334,7 +345,7 @@
             document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
             document.getElementById('langBtn').innerText = data.langBtn;
 
-            document.getElementById('subTitleText').innerText = data.title;
+            document.getElementById('subTitleStatic').innerText = data.staticTitle;
             if (document.getElementById('statusActiveText')) document.getElementById('statusActiveText').innerText = data.active;
             if (document.getElementById('statusInactiveText')) document.getElementById('statusInactiveText').innerText = data.inactive;
             document.getElementById('lblTimeRemaining').innerHTML = `<i class="fa-regular fa-clock ${currentLang === 'fa' ? 'ml-1' : 'mr-1'}"></i> ` + data.timeRemaining;
@@ -362,7 +373,7 @@
             updateClockAndDate();
         }
 
-        // ۴. سیستم تاریخ انقضا و ثانیه‌شمار زنده
+        // ۴. سیستم زمان‌سنج و تقویم شمسی بومی
         const expireTimestamp = parseInt("{{.expire}}");
         
         function updateClockAndDate() {
@@ -421,7 +432,7 @@
         }
         updateClockAndDate();
 
-        // ۵. سیستم سوییچ بین تم سفید و مشکی (با حفظ لوکس بودن رنگ بنفش)
+        // ۵. سیستم سوییچ وضعیت تم (Dark / Light)
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
@@ -441,7 +452,7 @@
             }
         }
 
-        // ۶. سیستم کپی در حافظه موقت (کلیپ‌بورد)
+        // ۶. کپی لینک با یک کلیک و نمایش Toast کاملاً بومی
         function copyToClipboard(text) {
             const data = langData[currentLang];
             navigator.clipboard.writeText(text).then(() => {
@@ -461,4 +472,4 @@
         }
     </script>
 </body>
-                    </html>
+                </html>
