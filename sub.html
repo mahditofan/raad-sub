@@ -127,9 +127,6 @@
         <div class="text-center mb-5">
             <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
                 <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
-                <span id="subTitleUsername" class="text-purple-600 dark:text-purple-400 font-mono font-black select-all px-1.5 py-0.5 bg-purple-500/5 rounded-md border border-purple-500/10">
-                    {{if .user}}{{.user}}{{else if .subTitle}}{{.subTitle}}{{else}}User{{end}}
-                </span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
@@ -326,17 +323,6 @@
                 langBtn: "FA"
             }
         };
-
-        // فیلتر کردن و تمیز کردن متون نام کاربری طولانی احتمالی از سمت پنل
-        function cleanUsernameDisplay() {
-            const nameEl = document.getElementById('subTitleUsername');
-            let rawName = nameEl.innerText.trim();
-            if(rawName.includes('|')) {
-                rawName = rawName.split('|')[0].trim();
-            }
-            nameEl.innerText = rawName;
-        }
-        cleanUsernameDisplay();
 
         function toggleLang() {
             currentLang = currentLang === 'fa' ? 'en' : 'fa';
