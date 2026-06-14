@@ -37,15 +37,21 @@
         .brand h1 { font-size: 20px; font-weight: 800; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .controls { display: flex; gap: 10px; }
         .btn-icon { background: var(--card-border); border: none; color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        /* Usage Section Fixed styling */
         .usage-section { margin-bottom: 24px; margin-top: 10px; }
+        .usage-header { display: flex; justify-content: space-between; font-size: 14px; }
         .progress-container { background: rgba(0,0,0,0.2); height: 10px; border-radius: 5px; overflow: hidden; margin: 12px 0; }
         .progress-bar { height: 100%; background: linear-gradient(to right, var(--secondary), var(--primary)); width: 0%; border-radius: 5px; box-shadow: 0 0 10px var(--primary-glow); }
-        .usage-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; }
-        .usage-item { display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 6px; }
-        .usage-item span:first-child { color: var(--text-muted); }
-        .section-title { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        .usage-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .usage-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--card-border); font-size: 13.5px; }
+        .usage-row .title { color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .usage-row .value { font-weight: 700; direction: ltr; }
+
+        .section-title { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; margin-top: 20px; }
         .config-card { background: rgba(0, 0, 0, 0.1); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .config-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; direction: ltr; text-align: right; }
+        .config-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%; direction: ltr; text-align: right; }
         .config-actions { display: flex; gap: 6px; }
         .btn-action { background: var(--card-border); border: none; color: var(--text-main); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; }
         .btn-action:hover { background: var(--primary); color: white; }
@@ -71,18 +77,37 @@
                 <button class="btn-icon" onclick="toggleLang()" id="lang-btn">EN</button>
             </div>
         </div>
+
         <div class="usage-section">
-            <div class="usage-item"><span id="lbl-usage-status">وضعیت مصرف حجم</span><span id="usage-percent">0%</span></div>
+            <div class="usage-header">
+                <span id="lbl-usage-status">وضعیت مصرف حجم</span>
+                <span id="usage-percent">0%</span>
+            </div>
             <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
-            <div class="usage-details">
-                <div class="usage-item"><span id="lbl-total">حجم کل:</span><span id="total-traffic"></span></div>
-                <div class="usage-item"><span id="lbl-used">مصرف شده:</span><span id="used-traffic"></span></div>
-                <div class="usage-item"><span id="lbl-rem">باقی‌مانده:</span><span id="remaining-traffic"></span></div>
-                <div class="usage-item"><span id="lbl-days">زمان باقی‌مانده:</span><span id="remaining-days"></span></div>
+            
+            <div class="usage-list">
+                <div class="usage-row">
+                    <span class="title"><i class="fa-solid fa-pie-chart"></i> <span id="lbl-total">حجم کل</span></span>
+                    <span class="value" id="total-traffic">-</span>
+                </div>
+                <div class="usage-row">
+                    <span class="title"><i class="fa-solid fa-cloud-download"></i> <span id="lbl-used">مصرف شده</span></span>
+                    <span class="value" id="used-traffic">-</span>
+                </div>
+                <div class="usage-row">
+                    <span class="title"><i class="fa-solid fa-hourglass-half"></i> <span id="lbl-rem">باقی‌مانده</span></span>
+                    <span class="value" id="remaining-traffic">-</span>
+                </div>
+                <div class="usage-row">
+                    <span class="title"><i class="fa-solid fa-calendar-alt"></i> <span id="lbl-days">زمان باقی‌مانده</span></span>
+                    <span class="value" id="remaining-days" style="direction: rtl;">-</span>
+                </div>
             </div>
         </div>
+
         <div class="section-title"><i class="fa-solid fa-key"></i><span id="lbl-configs">لیست اتصال‌ها</span></div>
         <div id="configs-list"></div>
+
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('android')">Android</button>
             <button class="tab-btn" onclick="switchTab('ios')">iOS</button>
@@ -101,9 +126,12 @@
             <a href="https://github.com/hiddify/hiddify-next/releases" class="app-link" target="_blank"><span>Hiddify Desktop</span><i class="fa-solid fa-desktop"></i></a>
         </div>
     </div>
+
     <div class="modal" id="qr-modal" onclick="closeModal()"><div class="modal-content" onclick="event.stopPropagation()"><div id="qrcode"></div><br><button class="btn-action" onclick="closeModal()" id="lbl-close">بستن</button></div></div>
     <div class="toast" id="toast">کپی شد!</div>
+
     <script>
+        // دیتای دریافتی مستقیم از قالب ثنایی
         const stats = { 
             total: parseFloat('{{.Total}}') || 0, 
             up: parseFloat('{{.Up}}') || 0, 
@@ -111,42 +139,103 @@
             expiry: '{{.Expiry}}', 
             links: `{{.Links}}` 
         };
+
         const i18n = {
-            fa: { status: "وضعیت مصرف حجم", total: "حجم کل:", used: "مصرف شده:", rem: "باقی‌مانده:", days: "زمان باقی‌مانده:", configs: "لیست اتصال‌ها", close: "بستن", toast: "با موفقیت کپی شد!", unlimited: "نامحدود" },
-            en: { status: "Data Status", total: "Total:", used: "Used:", rem: "Remaining:", days: "Time Left:", configs: "Profiles", close: "Close", toast: "Copied!", unlimited: "Unlimited" }
+            fa: { status: "وضعیت مصرف حجم", total: "حجم کل", used: "مصرف شده", rem: "باقی‌مانده", days: "زمان باقی‌مانده", configs: "لیست اتصال‌ها", close: "بستن", toast: "با موفقیت کپی شد!", unlimited: "نامحدود" },
+            en: { status: "Data Status", total: "Total Data", used: "Used Data", rem: "Remaining", days: "Time Left", configs: "Profiles", close: "Close", toast: "Copied!", unlimited: "Unlimited" }
         };
         let currentLang = 'fa';
-        function bytesToSize(bytes) { if (bytes === 0) return '0 B'; const k = 1024; const sizes = ['B', 'KB', 'MB', 'GB', 'TB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]; }
+
+        function bytesToSize(bytes) { 
+            if (bytes === 0) return '0 B'; 
+            const k = 1024; 
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB']; 
+            const i = Math.floor(Math.log(bytes) / Math.log(k)); 
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]; 
+        }
+
         function initData() {
-            const used = stats.up + stats.down; document.getElementById('used-traffic').innerText = bytesToSize(used);
+            const used = stats.up + stats.down; 
+            document.getElementById('used-traffic').innerText = bytesToSize(used);
+            
             if(stats.total > 0) {
                 document.getElementById('total-traffic').innerText = bytesToSize(stats.total);
-                const rem = stats.total - used; document.getElementById('remaining-traffic').innerText = bytesToSize(rem > 0 ? rem : 0);
+                const rem = stats.total - used; 
+                document.getElementById('remaining-traffic').innerText = bytesToSize(rem > 0 ? rem : 0);
                 const percent = Math.min((used / stats.total) * 100, 100).toFixed(1);
-                document.getElementById('usage-percent').innerText = percent + '%'; document.getElementById('progress-bar').style.width = percent + '%';
-            } else { document.getElementById('total-traffic').innerText = i18n[currentLang].unlimited; document.getElementById('remaining-traffic').innerText = i18n[currentLang].unlimited; document.getElementById('usage-percent').innerText = '0%'; }
+                document.getElementById('usage-percent').innerText = percent + '%'; 
+                document.getElementById('progress-bar').style.width = percent + '%';
+            } else { 
+                document.getElementById('total-traffic').innerText = i18n[currentLang].unlimited; 
+                document.getElementById('remaining-traffic').innerText = i18n[currentLang].unlimited; 
+                document.getElementById('usage-percent').innerText = '0%'; 
+                document.getElementById('progress-bar').style.width = '0%';
+            }
+            
             document.getElementById('remaining-days').innerText = stats.expiry ? stats.expiry : i18n[currentLang].unlimited;
-            const configContainer = document.getElementById('configs-list'); configContainer.innerHTML = '';
+            
+            const configContainer = document.getElementById('configs-list'); 
+            configContainer.innerHTML = '';
             const rawLinks = stats.links.trim().split('\n');
             rawLinks.forEach((link, idx) => {
-                if(!link) return; let name = "Config " + (idx + 1); try { if(link.includes('#')) name = decodeURIComponent(link.split('#')[1]); } catch(e){}
-                const card = document.createElement('div'); card.className = 'config-card';
+                if(!link) return; 
+                let name = "Config " + (idx + 1); 
+                try { if(link.includes('#')) name = decodeURIComponent(link.split('#')[1]); } catch(e){}
+                const card = document.createElement('div'); 
+                card.className = 'config-card';
                 card.innerHTML = `<div class="config-name">${name}</div><div class="config-actions"><button class="btn-action" onclick="copyText('${link}')"><i class="fa-regular fa-copy"></i></button><button class="btn-action" onclick="showQR('${link}')"><i class="fa-solid fa-qrcode"></i></button></div>`;
                 configContainer.appendChild(card);
             });
         }
-        function toggleTheme() { const body = document.body; const icon = document.getElementById('theme-icon').querySelector('i'); if(body.getAttribute('data-theme') === 'dark') { body.setAttribute('data-theme', 'light'); icon.className = 'fa-solid fa-moon'; } else { body.setAttribute('data-theme', 'dark'); icon.className = 'fa-solid fa-sun'; } }
-        function toggleLang() {
-            currentLang = currentLang === 'fa' ? 'en' : 'fa'; document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
-            document.getElementById('lang-btn').innerText = currentLang === 'fa' ? 'EN' : 'FA';
-            document.getElementById('lbl-usage-status').innerText = i18n[currentLang].status; document.getElementById('lbl-total').innerText = i18n[currentLang].total;
-            document.getElementById('lbl-used').innerText = i18n[currentLang].used; document.getElementById('lbl-rem').innerText = i18n[currentLang].rem;
-            document.getElementById('lbl-days').innerText = i18n[currentLang].days; document.getElementById('lbl-configs').innerText = i18n[currentLang].configs;
-            document.getElementById('lbl-close').innerText = i18n[currentLang].close; initData();
+
+        function toggleTheme() { 
+            const body = document.body; 
+            const icon = document.getElementById('theme-icon').querySelector('i'); 
+            if(body.getAttribute('data-theme') === 'dark') { 
+                body.setAttribute('data-theme', 'light'); 
+                icon.className = 'fa-solid fa-moon'; 
+            } else { 
+                body.setAttribute('data-theme', 'dark'); 
+                icon.className = 'fa-solid fa-sun'; 
+            } 
         }
-        function switchTab(tabId) { document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active')); event.target.classList.add('active'); document.getElementById(tabId).classList.add('active'); }
-        function copyText(text) { navigator.clipboard.writeText(text); const toast = document.getElementById('toast'); toast.innerText = i18n[currentLang].toast; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
-        function showQR(text) { document.getElementById('qr-modal').style.display = 'flex'; const qrDiv = document.getElementById('qrcode'); qrDiv.innerHTML = ''; new QRCode(qrDiv, { text: text, width: 200, height: 200 }); }
+
+        function toggleLang() {
+            currentLang = currentLang === 'fa' ? 'en' : 'fa'; 
+            document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
+            document.getElementById('lang-btn').innerText = currentLang === 'fa' ? 'EN' : 'FA';
+            document.getElementById('lbl-usage-status').innerText = i18n[currentLang].status; 
+            document.getElementById('lbl-total').innerText = i18n[currentLang].total;
+            document.getElementById('lbl-used').innerText = i18n[currentLang].used; 
+            document.getElementById('lbl-rem').innerText = i18n[currentLang].rem;
+            document.getElementById('lbl-days').innerText = i18n[currentLang].days; 
+            document.getElementById('lbl-configs').innerText = i18n[currentLang].configs;
+            document.getElementById('lbl-close').innerText = i18n[currentLang].close; 
+            initData();
+        }
+
+        function switchTab(tabId) { 
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); 
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active')); 
+            event.target.classList.add('active'); 
+            document.getElementById(tabId).classList.add('active'); 
+        }
+
+        function copyText(text) { 
+            navigator.clipboard.writeText(text); 
+            const toast = document.getElementById('toast'); 
+            toast.innerText = i18n[currentLang].toast; 
+            toast.classList.add('show'); 
+            setTimeout(() => toast.classList.remove('show'), 2000); 
+        }
+
+        function showQR(text) { 
+            document.getElementById('qr-modal').style.display = 'flex'; 
+            const qrDiv = document.getElementById('qrcode'); 
+            qrDiv.innerHTML = ''; 
+            new QRCode(qrDiv, { text: text, width: 200, height: 200 }); 
+        }
+
         function closeModal() { document.getElementById('qr-modal').style.display = 'none'; }
         initData();
     </script>
