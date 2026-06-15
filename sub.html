@@ -215,11 +215,19 @@
         </div>
 
         <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/40 rounded-2xl p-4 mb-5">
-            <div id="lblConfigList" class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5 px-1"><i class="fa-solid fa-link ml-1 text-purple-500 dark:text-purple-400"></i> لینک‌ کانفیگ ها</div>
+            <div class="flex justify-between items-center mb-2.5 px-1">
+                <div id="lblConfigList" class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center">
+                    <i class="fa-solid fa-link ml-1 text-purple-500 dark:text-purple-400"></i> لینک‌ کانفیگ ها
+                </div>
+                <button onclick="copyAllConfigs()" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-copy"></i>
+                    <span id="btnCopyAllText">کپی همه</span>
+                </button>
+            </div>
             <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
                 {{range .links}}
                 <div class="bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl flex items-center justify-between gap-3 text-[11px] shadow-sm">
-                    <span class="truncate font-mono text-slate-500 dark:text-slate-400 select-all text-left w-full" dir="ltr">{{.}}</span>
+                    <span class="truncate font-mono text-slate-500 dark:text-slate-400 select-all text-left w-full config-text" dir="ltr">{{.}}</span>
                     <button onclick="copyToClipboard('{{.}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-sm">
                         کپی
                     </button>
@@ -240,8 +248,7 @@
                 <button onclick="switchPlatform('win')" id="tab-win" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all">ویندوز</button>
             </div>
 
-            <div id="appsGrid" class="grid grid-cols-2 gap-2">
-                </div>
+            <div id="appsGrid" class="grid grid-cols-2 gap-2"></div>
         </div>
 
         <div class="text-center mt-4 text-[9px] text-purple-500/60 tracking-widest font-mono">
@@ -258,28 +265,29 @@
     <script>
         const subUrlValue = "{{.subUrl}}";
 
-        // پایگاه داده کاملاً نمایشی (بدون Sing-box در اندروید و ویندوز و با نام اصلاح‌شده v2rayNG)
         const appDatabase = {
             android: [
-                { name: "v2rayNG" },
-                { name: "V2Box" },
-                { name: "V2RayTun" },
-                { name: "NPV Tunnel" },
-                { name: "Happ" },
-                { name: "Incy" }
+                { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
+                { name: "V2Line / v2rayNG", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
+                { name: "Sing-box", intent: `sing-box://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "V2RayTun", intent: `v2raytun://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "NPV Tunnel", intent: `npv://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "Happ", intent: `happ://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "Incy", intent: `incy://import?url=${encodeURIComponent(subUrlValue)}` }
             ],
             ios: [
-                { name: "Shadowrocket" },
-                { name: "V2Box" },
-                { name: "Streisand" },
-                { name: "V2RayTun" },
-                { name: "NPV Tunnel" },
-                { name: "Happ" }
+                { name: "Shadowrocket", intent: `shadowrocket://add/sub://${btoa(subUrlValue)}` },
+                { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
+                { name: "Streisand", intent: `streisand://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "V2RayTun", intent: `v2raytun://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "NPV Tunnel", intent: `npv://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "Happ", intent: `happ://import?url=${encodeURIComponent(subUrlValue)}` }
             ],
             win: [
-                { name: "v2rayN" },
-                { name: "Nekoray" },
-                { name: "Clash Verge" }
+                { name: "v2rayN", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
+                { name: "Nekoray", intent: `nekoray://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "Clash Verge", intent: `clash://install-config?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "Sing-box", intent: `sing-box://import?url=${encodeURIComponent(subUrlValue)}` }
             ]
         };
 
@@ -298,17 +306,16 @@
             grid.innerHTML = '';
 
             appDatabase[platform].forEach(app => {
-                const div = document.createElement('div');
-                div.className = "bg-white dark:bg-slate-950/40 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl text-center font-bold text-[11px] text-slate-700 dark:text-slate-300 shadow-sm truncate select-none cursor-default";
-                div.innerText = app.name;
-                grid.appendChild(div);
+                const btn = document.createElement('a');
+                btn.href = app.intent;
+                btn.className = "bg-white dark:bg-slate-950/40 border border-purple-500/10 dark:border-purple-950/30 p-2 rounded-xl text-center font-bold text-[11px] text-slate-700 dark:text-slate-300 hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all active:scale-95 shadow-sm block truncate";
+                btn.innerText = app.name;
+                grid.appendChild(btn);
             });
         }
 
-        // رندر اولیه تب اندروید
         switchPlatform('android');
 
-        // ۱. منطق نوار مصرف حجم اکانت
         const totalByte = parseInt("{{.totalByte}}");
         const downloadByte = parseInt("{{.downloadByte}}");
         const uploadByte = parseInt("{{.uploadByte}}");
@@ -322,7 +329,6 @@
             document.getElementById('progressBar').style.width = '100%';
         }
 
-        // ۲. رندر خودکار کد QR
         if(subUrlValue && subUrlValue !== "") {
             new QRCode(document.getElementById("qrcode"), {
                 text: subUrlValue,
@@ -351,7 +357,6 @@
             qrVisible = !qrVisible;
         }
 
-        // ۳. پایگاه داده چندزبانه (فارسی و انگلیسی)
         let currentLang = 'fa';
         const langData = {
             fa: {
@@ -364,12 +369,14 @@
                 download: "دانلود:", upload: "آپلود:",
                 copySub: "کپی لینک اشتراک کلیک کنید",
                 configList: "لینک‌ کانفیگ ها",
+                copyAll: "کپی همه",
                 qrDesc: "اسکن تصویری بارکد اشتراک",
                 qrText: "کیو‌آر کد",
                 unlimited: "نامحدود",
                 expiryLabel: "تاریخ انقضا: ",
                 noExpiry: "اعتبار اتصال: بدون انقضا",
                 copySuccess: "با موفقیت در حافظه کپی شد.",
+                allCopySuccess: "همه کانفیگ‌ها کپی شدند.",
                 copyFail: "خطا در کپی سیگنال اشتراک!",
                 downloadTitle: "برنامه‌های پیشنهادی",
                 tabAndroid: "اندروید", tabIos: "آیفون", tabWin: "ویندوز",
@@ -385,12 +392,14 @@
                 download: "Download:", upload: "Upload:",
                 copySub: "Click to Copy Subscription Link",
                 configList: "Configs List",
+                copyAll: "Copy All",
                 qrDesc: "Scan Subscription QR Code",
                 qrText: "QR Code",
                 unlimited: "Unlimited",
                 expiryLabel: "Expiry Date: ",
                 noExpiry: "Connection Validity: No Expiry",
                 copySuccess: "Successfully copied to clipboard.",
+                allCopySuccess: "All configs copied.",
                 copyFail: "Failed to copy to clipboard!",
                 downloadTitle: "Recommended Apps",
                 tabAndroid: "Android", tabIos: "iOS", tabWin: "Windows",
@@ -428,6 +437,7 @@
             document.getElementById('tab-android').innerText = data.tabAndroid;
             document.getElementById('tab-ios').innerText = data.tabIos;
             document.getElementById('tab-win').innerText = data.tabWin;
+            document.getElementById('btnCopyAllText').innerText = data.copyAll;
             document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ${currentLang === 'fa' ? 'ml-1' : 'mr-1'} text-purple-500"></i> ` + data.configList;
 
             if ("{{.total}}" === "0") {
@@ -438,7 +448,6 @@
             updateClockAndDate();
         }
 
-        // ۴. سیستم زمان‌سنج و تقویم
         const expireTimestamp = parseInt("{{.expire}}");
         
         function updateClockAndDate() {
@@ -497,7 +506,6 @@
         }
         updateClockAndDate();
 
-        // ۵. سیستم سوییچ وضعیت تم
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
@@ -517,7 +525,20 @@
             }
         }
 
-        // ۶. کپی لینک و نمایش Toast
+        // تابع جدید کپی همه
+        function copyAllConfigs() {
+            const configs = document.querySelectorAll('.config-text');
+            const data = langData[currentLang];
+            let allText = "";
+            configs.forEach(c => allText += c.innerText + "\n");
+            
+            navigator.clipboard.writeText(allText.trim()).then(() => {
+                showToast(data.allCopySuccess);
+            }).catch(() => {
+                showToast(data.copyFail);
+            });
+        }
+
         function copyToClipboard(text) {
             const data = langData[currentLang];
             navigator.clipboard.writeText(text).then(() => {
