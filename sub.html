@@ -105,7 +105,8 @@
 
     <div class="w-full max-w-md velox-card rounded-3xl p-6 relative z-10 my-auto overflow-hidden">
         
-        <div class="flex justify-between items-center mb-2 w-full px-1">
+        <!-- کلاس flex-row-reverse اضافه شد تا دکمه‌ها همیشه در سر جای خود ثابت بمانند -->
+        <div class="flex flex-row-reverse justify-between items-center mb-2 w-full px-1">
             <button onclick="toggleTheme()" id="themeBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-95">
                 <i id="themeIcon" class="fa-solid fa-sun text-sm"></i>
             </button>
@@ -525,7 +526,6 @@
             }
         }
 
-        // تابع جدید کپی همه
         function copyAllConfigs() {
             const configs = document.querySelectorAll('.config-text');
             const data = langData[currentLang];
@@ -558,4 +558,4 @@
         }
     </script>
 </body>
-                </html>
+                    </html>
