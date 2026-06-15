@@ -65,7 +65,6 @@
             box-shadow: 0 15px 35px rgba(168, 85, 247, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        /* استایل جدید رنگارنگ، شیک و فوق‌العاده خفن با انیمیشن حرکتی */
         .velox-bar {
             background: linear-gradient(90deg, #a855f7, #ec4899, #ef4444, #f97316, #eab308, #22c55e, #a855f7);
             background-size: 200% 100%;
@@ -259,30 +258,28 @@
     <script>
         const subUrlValue = "{{.subUrl}}";
 
-        // پایگاه داده برنامه‌ها بر اساس پروتکل‌های فعال‌سازی و ایمپورت خودکار کلاینت‌ها
+        // پایگاه داده کاملاً نمایشی (بدون Sing-box در اندروید و ویندوز و با نام اصلاح‌شده v2rayNG)
         const appDatabase = {
             android: [
-                { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "V2Line / v2rayNG", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "Sing-box", intent: `sing-box://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "V2RayTun", intent: `v2raytun://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "NPV Tunnel", intent: `npv://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Happ", intent: `happ://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Incy", intent: `incy://import?url=${encodeURIComponent(subUrlValue)}` }
+                { name: "v2rayNG" },
+                { name: "V2Box" },
+                { name: "V2RayTun" },
+                { name: "NPV Tunnel" },
+                { name: "Happ" },
+                { name: "Incy" }
             ],
             ios: [
-                { name: "Shadowrocket", intent: `shadowrocket://add/sub://${btoa(subUrlValue)}` },
-                { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "Streisand", intent: `streisand://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "V2RayTun", intent: `v2raytun://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "NPV Tunnel", intent: `npv://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Happ", intent: `happ://import?url=${encodeURIComponent(subUrlValue)}` }
+                { name: "Shadowrocket" },
+                { name: "V2Box" },
+                { name: "Streisand" },
+                { name: "V2RayTun" },
+                { name: "NPV Tunnel" },
+                { name: "Happ" }
             ],
             win: [
-                { name: "v2rayN", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "Nekoray", intent: `nekoray://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Clash Verge", intent: `clash://install-config?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Sing-box", intent: `sing-box://import?url=${encodeURIComponent(subUrlValue)}` }
+                { name: "v2rayN" },
+                { name: "Nekoray" },
+                { name: "Clash Verge" }
             ]
         };
 
@@ -301,11 +298,10 @@
             grid.innerHTML = '';
 
             appDatabase[platform].forEach(app => {
-                const btn = document.createElement('a');
-                btn.href = app.intent;
-                btn.className = "bg-white dark:bg-slate-950/40 border border-purple-500/10 dark:border-purple-950/30 p-2 rounded-xl text-center font-bold text-[11px] text-slate-700 dark:text-slate-300 hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all active:scale-95 shadow-sm block truncate";
-                btn.innerText = app.name;
-                grid.appendChild(btn);
+                const div = document.createElement('div');
+                div.className = "bg-white dark:bg-slate-950/40 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl text-center font-bold text-[11px] text-slate-700 dark:text-slate-300 shadow-sm truncate select-none cursor-default";
+                div.innerText = app.name;
+                grid.appendChild(div);
             });
         }
 
@@ -326,7 +322,7 @@
             document.getElementById('progressBar').style.width = '100%';
         }
 
-        // ۲. رندر خودکار کد QR از روی لینک اشتراک بومی پنل
+        // ۲. رندر خودکار کد QR
         if(subUrlValue && subUrlValue !== "") {
             new QRCode(document.getElementById("qrcode"), {
                 text: subUrlValue,
@@ -442,7 +438,7 @@
             updateClockAndDate();
         }
 
-        // ۴. سیستم زمان‌سنج و تقویم شمسی بومی
+        // ۴. سیستم زمان‌سنج و تقویم
         const expireTimestamp = parseInt("{{.expire}}");
         
         function updateClockAndDate() {
@@ -501,7 +497,7 @@
         }
         updateClockAndDate();
 
-        // ۵. سیستم سوییچ وضعیت تم (Dark / Light)
+        // ۵. سیستم سوییچ وضعیت تم
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
@@ -521,7 +517,7 @@
             }
         }
 
-        // ۶. کپی لینک با یک کلیک و نمایش Toast کاملاً بومی
+        // ۶. کپی لینک و نمایش Toast
         function copyToClipboard(text) {
             const data = langData[currentLang];
             navigator.clipboard.writeText(text).then(() => {
@@ -541,4 +537,4 @@
         }
     </script>
 </body>
-    </html>
+                </html>
