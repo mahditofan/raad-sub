@@ -215,6 +215,22 @@
             </div>
         </div>
 
+        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/40 rounded-2xl p-4 mb-5">
+            <div id="lblDownloadSection" class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3 px-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-download text-purple-500 dark:text-purple-400"></i>
+                <span id="lblDownloadTitle">دانلود نرم‌افزارهای اتصال</span>
+            </div>
+            
+            <div class="flex gap-1 mb-3 bg-white/5 dark:bg-slate-950/40 p-1 rounded-xl border border-purple-500/5">
+                <button onclick="switchPlatform('android')" id="tab-android" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow transition-all">اندروید</button>
+                <button onclick="switchPlatform('ios')" id="tab-ios" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all">آیفون</button>
+                <button onclick="switchPlatform('win')" id="tab-win" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all">ویندوز</button>
+            </div>
+
+            <div id="appsGrid" class="grid grid-cols-2 gap-2">
+                </div>
+        </div>
+
         <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/40 rounded-2xl p-4">
             <div id="lblConfigList" class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5 px-1"><i class="fa-solid fa-link ml-1 text-purple-500 dark:text-purple-400"></i> لینک‌ کانفیگ ها</div>
             <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
@@ -241,6 +257,60 @@
     </div>
 
     <script>
+        // دیتابیس نرم‌افزارها با لینک‌های مستقیم و رسمی دانلود
+        const appDatabase = {
+            android: [
+                { name: "V2Box", url: "https://play.google.com/store/apps/details?id=com.v2box.app" },
+                { name: "V2RayNG", url: "https://github.com/2dust/v2rayNG/releases/latest" },
+                { name: "Sing-box", url: "https://github.com/SagerNet/sing-box/releases/latest" },
+                { name: "V2RayTun", url: "https://play.google.com/store/apps/details?id=com.v2raytun.app" },
+                { name: "NPV Tunnel", url: "https://play.google.com/store/apps/details?id=com.npv.tunnel" },
+                { name: "Happ", url: "https://play.google.com/store/apps/details?id=com.happ.app" },
+                { name: "Incy", url: "https://play.google.com/store/apps/details?id=com.incy.app" }
+            ],
+            ios: [
+                { name: "Shadowrocket", url: "https://apps.apple.com/us/app/shadowrocket/id932747118" },
+                { name: "V2Box", url: "https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690" },
+                { name: "Streisand", url: "https://apps.apple.com/us/app/streisand/id6450534064" },
+                { name: "V2RayTun", url: "https://apps.apple.com/us/app/v2raytun/id6477543071" },
+                { name: "NPV Tunnel", url: "https://apps.apple.com/us/app/npv-tunnel/id1626487143" },
+                { name: "Happ", url: "https://apps.apple.com/us/app/happ-proxy/id6475225134" }
+            ],
+            win: [
+                { name: "v2rayN", url: "https://github.com/2dust/v2rayN/releases/latest" },
+                { name: "Nekoray", url: "https://github.com/Matsuridayo/nekoray/releases/latest" },
+                { name: "Clash Verge", url: "https://github.com/clash-verge-rev/clash-verge-rev/releases/latest" },
+                { name: "Sing-box", url: "https://github.com/SagerNet/sing-box/releases/latest" }
+            ]
+        };
+
+        function switchPlatform(platform) {
+            const tabs = ['android', 'ios', 'win'];
+            tabs.forEach(t => {
+                const tabBtn = document.getElementById(`tab-${t}`);
+                if (t === platform) {
+                    tabBtn.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow transition-all";
+                } else {
+                    tabBtn.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all";
+                }
+            });
+
+            const grid = document.getElementById('appsGrid');
+            grid.innerHTML = '';
+
+            appDatabase[platform].forEach(app => {
+                const btn = document.createElement('a');
+                btn.href = app.url;
+                btn.target = "_blank";
+                btn.className = "bg-white dark:bg-slate-950/40 border border-purple-500/10 dark:border-purple-950/30 p-2 rounded-xl text-center font-bold text-[11px] text-slate-700 dark:text-slate-300 hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all active:scale-95 shadow-sm block truncate";
+                btn.innerText = app.name;
+                grid.appendChild(btn);
+            });
+        }
+
+        // رندر اولیه تب اندروید
+        switchPlatform('android');
+
         // ۱. منطق نوار مصرف حجم اکانت
         const totalByte = parseInt("{{.totalByte}}");
         const downloadByte = parseInt("{{.downloadByte}}");
@@ -305,6 +375,8 @@
                 noExpiry: "اعتبار اتصال: بدون انقضا",
                 copySuccess: "با موفقیت در حافظه کپی شد.",
                 copyFail: "خطا در کپی سیگنال اشتراک!",
+                downloadTitle: "دانلود نرم‌افزارهای اتصال",
+                tabAndroid: "اندروید", tabIos: "آیفون", tabWin: "ویندوز",
                 langBtn: "EN"
             },
             en: {
@@ -324,6 +396,8 @@
                 noExpiry: "Connection Validity: No Expiry",
                 copySuccess: "Successfully copied to clipboard.",
                 copyFail: "Failed to copy to clipboard!",
+                downloadTitle: "Download Connection Clients",
+                tabAndroid: "Android", tabIos: "iOS", tabWin: "Windows",
                 langBtn: "FA"
             }
         };
@@ -354,6 +428,10 @@
             document.getElementById('btnCopySub').innerText = data.copySub;
             document.getElementById('lblQrDesc').innerText = data.qrDesc;
             document.getElementById('btnQrText').innerText = data.qrText;
+            document.getElementById('lblDownloadTitle').innerText = data.downloadTitle;
+            document.getElementById('tab-android').innerText = data.tabAndroid;
+            document.getElementById('tab-ios').innerText = data.tabIos;
+            document.getElementById('tab-win').innerText = data.tabWin;
             document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ${currentLang === 'fa' ? 'ml-1' : 'mr-1'} text-purple-500"></i> ` + data.configList;
 
             if ("{{.total}}" === "0") {
@@ -463,4 +541,4 @@
         }
     </script>
 </body>
-        </html>
+            </html>
