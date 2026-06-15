@@ -105,7 +105,6 @@
 
     <div class="w-full max-w-md velox-card rounded-3xl p-6 relative z-10 my-auto overflow-hidden">
         
-        <!-- کلاس flex-row-reverse اضافه شد تا دکمه‌ها همیشه در سر جای خود ثابت بمانند -->
         <div class="flex flex-row-reverse justify-between items-center mb-2 w-full px-1">
             <button onclick="toggleTheme()" id="themeBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-95">
                 <i id="themeIcon" class="fa-solid fa-sun text-sm"></i>
@@ -266,11 +265,11 @@
     <script>
         const subUrlValue = "{{.subUrl}}";
 
+        // تغییر نام به v2rayNG و حذف Sing-box از بخش اندروید و ویندوز
         const appDatabase = {
             android: [
                 { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "V2Line / v2rayNG", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "Sing-box", intent: `sing-box://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "v2rayNG", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
                 { name: "V2RayTun", intent: `v2raytun://import?url=${encodeURIComponent(subUrlValue)}` },
                 { name: "NPV Tunnel", intent: `npv://import?url=${encodeURIComponent(subUrlValue)}` },
                 { name: "Happ", intent: `happ://import?url=${encodeURIComponent(subUrlValue)}` },
@@ -287,8 +286,7 @@
             win: [
                 { name: "v2rayN", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
                 { name: "Nekoray", intent: `nekoray://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Clash Verge", intent: `clash://install-config?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Sing-box", intent: `sing-box://import?url=${encodeURIComponent(subUrlValue)}` }
+                { name: "Clash Verge", intent: `clash://install-config?url=${encodeURIComponent(subUrlValue)}` }
             ]
         };
 
@@ -558,4 +556,4 @@
         }
     </script>
 </body>
-                    </html>
+    </html>
