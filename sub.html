@@ -250,15 +250,16 @@
                 {{range $index, $element := .links}}
                 <div class="flex flex-col bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl shadow-sm gap-2">
                     <div class="flex items-center justify-between gap-2 text-[11px]">
-                        <button onclick="toggleConfigQR('{{$index}}', '{{$element}}')" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 w-7 h-7 rounded-lg flex items-center justify-center transition-all transform active:scale-95 shrink-0" title="QR Code">
-                            <i class="fa-solid fa-qrcode text-sm"></i>
+                        <button onclick="toggleConfigQR('{{$index}}', '{{$element}}')" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 px-2 py-1 rounded-lg flex items-center justify-center transition-all transform active:scale-95 shrink-0 gap-1 text-[10px] font-bold btn-config-qr">
+                            <i class="fa-solid fa-qrcode text-xs"></i>
+                            <span class="lbl-btn-config-qr">کیو‌آر کد</span>
                         </button>
                         <span class="truncate font-mono text-slate-500 dark:text-slate-400 select-all text-left w-full config-text" dir="ltr">{{$element}}</span>
-                        <button onclick="copyToClipboard('{{$element}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-sm">
+                        <button onclick="copyToClipboard('{{$element}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-sm btn-config-copy">
                             کپی
                         </button>
                     </div>
-                    <div id="config-qr-container-{{$index}}" class="hidden flex flex-col items-center justify-center p-2 bg-white dark:bg-slate-900 rounded-lg border border-purple-500/20 mt-1 transition-all">
+                    <div id="config-qr-container-{{$index}} animate-all" class="hidden flex flex-col items-center justify-center p-2 bg-white dark:bg-slate-900 rounded-lg border border-purple-500/20 mt-1">
                         <div id="config-qrcode-{{$index}}" class="config-qrcode-box"></div>
                     </div>
                 </div>
@@ -385,7 +386,6 @@
             qrVisible = !qrVisible;
         }
 
-        // اسکریپت نمایش و جنریت کیوآر کد اختصاصی برای هر لینک کانفیگ به صورت مجزا
         const generatedConfigQRs = {};
         function toggleConfigQR(index, configText) {
             const container = document.getElementById(`config-qr-container-${index}`);
@@ -439,6 +439,8 @@
                 copySub: "کپی لینک اشتراک کلیک کنید",
                 configList: "لینک‌ کانفیگ ها",
                 copyAll: "کپی همه",
+                configCopyBtn: "کپی",
+                configQrBtn: "کیو‌آر کد",
                 qrDesc: "اسکن تصویری بارکد اشتراک",
                 qrText: "کیو‌آر کد",
                 unlimited: "نامحدود",
@@ -462,6 +464,8 @@
                 copySub: "Click to Copy Subscription Link",
                 configList: "Configs List",
                 copyAll: "Copy All",
+                configCopyBtn: "Copy",
+                configQrBtn: "QR",
                 qrDesc: "Scan Subscription QR Code",
                 qrText: "QR Code",
                 unlimited: "Unlimited",
@@ -511,6 +515,16 @@
             document.getElementById('tab-win').innerText = data.tabWin;
             document.getElementById('btnCopyAllText').innerText = data.copyAll;
             document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ${currentLang === 'fa' ? 'ml-1' : 'mr-1'} text-purple-500"></i> ` + data.configList;
+
+            const configCopyButtons = document.querySelectorAll('.btn-config-copy');
+            configCopyButtons.forEach(btn => {
+                btn.innerText = data.configCopyBtn;
+            });
+
+            const configQrLabels = document.querySelectorAll('.lbl-btn-config-qr');
+            configQrLabels.forEach(lbl => {
+                lbl.innerText = data.configQrBtn;
+            });
 
             if ("{{.total}}" === "0") {
                 document.getElementById('valRemained').innerText = data.unlimited;
@@ -629,4 +643,4 @@
         }
     </script>
 </body>
-                </html>
+                        </html>
