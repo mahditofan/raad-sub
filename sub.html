@@ -105,13 +105,28 @@
 
     <div class="w-full max-w-md velox-card rounded-3xl p-6 relative z-10 my-auto overflow-hidden">
         
-        <div class="flex flex-row-reverse justify-between items-center mb-2 w-full px-1">
+        <div class="flex flex-row-reverse justify-between items-center mb-4 w-full px-1 relative">
             <button onclick="toggleTheme()" id="themeBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-95">
                 <i id="themeIcon" class="fa-solid fa-sun text-sm"></i>
             </button>
-            <button onclick="toggleLang()" id="langBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 px-3 py-1 rounded-xl text-xs font-bold font-mono transition-all active:scale-95">
-                EN
-            </button>
+            
+            <div class="relative inline-block text-right" id="langDropdownContainer">
+                <button onclick="toggleDropdown()" id="dropdownBtn" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/20 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95">
+                    <i class="fa-solid fa-globe text-[11px]"></i>
+                    <span id="currentLangText">فارسی</span>
+                    <i class="fa-solid fa-chevron-down text-[9px] transition-transform duration-200" id="dropdownArrow"></i>
+                </button>
+                <div id="langMenu" class="hidden absolute right-0 mt-1.5 w-28 bg-slate-900/95 dark:bg-slate-950/95 border border-purple-500/30 rounded-xl shadow-xl z-50 overflow-hidden backdrop-blur-md transition-all">
+                    <button onclick="selectLang('fa')" class="w-full text-right px-3 py-2 text-xs font-bold hover:bg-purple-600/20 text-slate-200 flex items-center justify-between">
+                        <span>فارسی</span>
+                        <span class="text-[10px]">🇮🇷</span>
+                    </button>
+                    <button onclick="selectLang('en')" class="w-full text-left px-3 py-2 text-xs font-bold hover:bg-purple-600/20 text-slate-200 flex items-center justify-between" dir="ltr">
+                        <span>English</span>
+                        <span class="text-[10px]">🇬🇧</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="flex flex-col items-center mb-4">
@@ -265,7 +280,6 @@
     <script>
         const subUrlValue = "{{.subUrl}}";
 
-        // تغییر نام به v2rayNG و حذف Sing-box از بخش اندروید و ویندوز
         const appDatabase = {
             android: [
                 { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
@@ -356,6 +370,25 @@
             qrVisible = !qrVisible;
         }
 
+        // عملکرد منوی کشویی انتخاب زبان
+        function toggleDropdown() {
+            const menu = document.getElementById('langMenu');
+            const arrow = document.getElementById('dropdownArrow');
+            menu.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        // بستن منو در صورت کلیک روی بخش‌های دیگر صفحه
+        window.addEventListener('click', function(e) {
+            const container = document.getElementById('langDropdownContainer');
+            const menu = document.getElementById('langMenu');
+            const arrow = document.getElementById('dropdownArrow');
+            if (!container.contains(e.target)) {
+                menu.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        });
+
         let currentLang = 'fa';
         const langData = {
             fa: {
@@ -379,7 +412,7 @@
                 copyFail: "خطا در کپی سیگنال اشتراک!",
                 downloadTitle: "برنامه‌های پیشنهادی",
                 tabAndroid: "اندروید", tabIos: "آیفون", tabWin: "ویندوز",
-                langBtn: "EN"
+                currentLangBtn: "فارسی"
             },
             en: {
                 staticTitle: "Subscription Status for",
@@ -402,16 +435,20 @@
                 copyFail: "Failed to copy to clipboard!",
                 downloadTitle: "Recommended Apps",
                 tabAndroid: "Android", tabIos: "iOS", tabWin: "Windows",
-                langBtn: "FA"
+                currentLangBtn: "English"
             }
         };
 
-        function toggleLang() {
-            currentLang = currentLang === 'fa' ? 'en' : 'fa';
+        function selectLang(lang) {
+            currentLang = lang;
             const data = langData[currentLang];
             
             document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
-            document.getElementById('langBtn').innerText = data.langBtn;
+            document.getElementById('currentLangText').innerText = data.currentLangBtn;
+            
+            // بستن منو بعد از انتخاب
+            document.getElementById('langMenu').classList.add('hidden');
+            document.getElementById('dropdownArrow').classList.remove('rotate-180');
 
             document.getElementById('subTitleStatic').innerText = data.staticTitle;
             if (document.getElementById('statusActiveText')) document.getElementById('statusActiveText').innerText = data.active;
@@ -556,4 +593,4 @@
         }
     </script>
 </body>
-    </html>
+                </html>
