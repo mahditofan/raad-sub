@@ -17,7 +17,7 @@
     </script>
 
     <style>
-         *, *::before, *::after {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -106,7 +106,7 @@
         }
 
         /* ==========================================
-           تنظیم پاپ‌آپ کاملاً شفاف و حذف سفیدی‌ها
+           استایل پاپ‌آپ حرفه‌ای تاریک و بدون کادر سفید
            ========================================== */
         .config-popup-overlay {
             display: none;
@@ -135,7 +135,7 @@
             align-items: center;
             justify-content: center;
         }
-        /* حذف کامل استایل سفید پشت دکمه ضربدر */
+        /* ضربدر کاملاً شفاف بدون بک‌گراند دایره‌ای سفید */
         .config-popup-close {
             position: absolute;
             top: -44px;
@@ -157,10 +157,10 @@
             color: #ffffff !important;
         }
         
-        /* باکس کیو‌آر کد بدون حاشیه سفید یا پدینگ اضافی کتابخانه */
+        /* باکس اصلی رندر کیو‌آر کد بدون مارجین یا حاشیه سفید مزاحم */
         #popupQrCodeBox {
             background: #ffffff !important;
-            padding: 0px !important; /* حذف پدینگ برای از بین رفتن کادر سفید دور بارکد */
+            padding: 0px !important; 
             border-radius: 12px !important;
             overflow: hidden !important;
             display: block !important;
@@ -221,7 +221,7 @@
 
         <div class="text-center mb-5">
             <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
-                <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
+                <span id="subTitleStatic">مدیریت و وضعیت اشتراق کاربر</span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
@@ -464,7 +464,7 @@
         }
 
         /* ==========================================================================
-           رندر کیو‌آر کد با رزولوشن نیتیو و تصحیح خطای کلاس H بدون مارجین اضافی
+           تابع تولید بارکد در پاپ‌آپ با تصحیح خطای نوع H و ابعاد نیتیو بدون مارجین سفید
            ========================================================================== */
         function openConfigPopup(index, configText) {
             const overlay = document.getElementById('configPopupOverlay');
@@ -508,7 +508,7 @@
         let currentLang = 'fa';
         const langData = {
             fa: {
-                staticTitle: "مدیریت و وضعیت اشتراک کاربر",
+                staticTitle: "مدیریت و وضعیت اشتراق کاربر",
                 active: "اتصال فعال و معتبر",
                 inactive: "اتصال منقضی یا غیرفعال",
                 timeRemaining: "زمان باقی‌مانده تا انقضای سرویس",
@@ -722,4 +722,4 @@
         }
     </script>
 </body>
-                </html>
+    </html>
