@@ -106,7 +106,7 @@
         }
 
         /* ==========================================
-           اصلاح پاپ‌آپ تاریک و باکیفیت بدون هدر و کادر سفید اضافی
+           تنظیم پاپ‌آپ کاملاً شفاف و حذف سفیدی‌ها
            ========================================== */
         .config-popup-overlay {
             display: none;
@@ -135,33 +135,42 @@
             align-items: center;
             justify-content: center;
         }
+        /* حذف کامل استایل سفید پشت دکمه ضربدر */
         .config-popup-close {
             position: absolute;
-            top: -40px;
-            right: 4px;
+            top: -44px;
+            right: 0;
             background: none !important;
             border: none !important;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 32px;
+            outline: none !important;
+            box-shadow: none !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-size: 36px !important;
             cursor: pointer;
             line-height: 1;
             transition: color 0.2s;
+            width: auto !important;
+            height: auto !important;
+            border-radius: 0 !important;
         }
         .config-popup-close:hover {
-            color: #ffffff;
+            color: #ffffff !important;
         }
         
-        /* خروجی بارکد کاملاً شفاف، واضح و برجسته روی بوم سفید داخلی بدون حاشیه */
+        /* باکس کیو‌آر کد بدون حاشیه سفید یا پدینگ اضافی کتابخانه */
         #popupQrCodeBox {
             background: #ffffff !important;
-            padding: 12px !important;
-            border-radius: 16px !important;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            padding: 0px !important; /* حذف پدینگ برای از بین رفتن کادر سفید دور بارکد */
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            display: block !important;
         }
         #popupQrCodeBox img {
             display: block !important;
-            width: 200px !important;
-            height: 200px !important;
+            width: 240px !important;
+            height: 240px !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
 
         @keyframes popupScaleIn {
@@ -212,7 +221,7 @@
 
         <div class="text-center mb-5">
             <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
-                <span id="subTitleStatic">مدیریت و وضعیت اشتراق کاربر</span>
+                <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
@@ -455,7 +464,7 @@
         }
 
         /* ==========================================================================
-           تنظیم دقیق سطح تصحیح خطا روی هارد کپی H + ابعاد نیتیوِ دقیق بدون تاری تصویر
+           رندر کیو‌آر کد با رزولوشن نیتیو و تصحیح خطای کلاس H بدون مارجین اضافی
            ========================================================================== */
         function openConfigPopup(index, configText) {
             const overlay = document.getElementById('configPopupOverlay');
@@ -465,8 +474,8 @@
             
             new QRCode(box, {
                 text: configText,
-                width: 250, 
-                height: 250,
+                width: 240, 
+                height: 240,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
@@ -713,4 +722,4 @@
         }
     </script>
 </body>
-    </html>
+                </html>
