@@ -91,18 +91,83 @@
             50% { transform: scale(1.05); filter: drop-shadow(0 0 15px #ec4899); }
         }
 
-        .config-qrcode-box img {
+        #qrcode img {
             display: inline-block;
             border-radius: 12px;
             padding: 8px;
             background: white;
         }
 
-        #qrcode img {
-            display: inline-block;
-            border-radius: 12px;
-            padding: 8px;
-            background: white;
+        /* ==========================================
+           استایل پاپ‌آپ سراسری جدید برای کانفیگ‌ها
+           ========================================== */
+        .config-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 2, 10, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .config-popup-content {
+            background: rgba(18, 12, 38, 0.95);
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(168, 85, 247, 0.2);
+            position: relative;
+            animation: popupScaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .config-popup-close {
+            position: absolute;
+            top: -44px;
+            right: 0;
+            background: none !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-size: 36px !important;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s, transform 0.2s;
+        }
+        
+        .config-popup-close:hover {
+            color: #ffffff !important;
+            transform: scale(1.1);
+        }
+        
+        #popupQrBox {
+            background: #ffffff !important;
+            padding: 10px !important;
+            border-radius: 16px !important;
+            display: inline-block !important;
+        }
+        
+        #popupQrBox img {
+            display: block !important;
+            width: 180px !important;
+            height: 180px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        @keyframes popupScaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -148,7 +213,7 @@
 
         <div class="text-center mb-5">
             <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
-                <span id="subTitleStatic">مدیریت و وضعیت اشتراق کاربر</span>
+                <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
@@ -250,7 +315,7 @@
                 {{range $index, $element := .links}}
                 <div class="flex flex-col bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl shadow-sm gap-2">
                     <div class="flex items-center justify-between gap-2 text-[11px]">
-                        <button onclick="toggleConfigQR('{{$index}}', '{{$element}}')" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 px-2 py-1 rounded-lg flex items-center justify-center transition-all transform active:scale-95 shrink-0 gap-1 text-[10px] font-bold btn-config-qr">
+                        <button onclick="openConfigPopup('{{$element}}')" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 px-2 py-1 rounded-lg flex items-center justify-center transition-all transform active:scale-95 shrink-0 gap-1 text-[10px] font-bold btn-config-qr">
                             <i class="fa-solid fa-qrcode text-xs"></i>
                             <span class="lbl-btn-config-qr">کیو‌آر کد</span>
                         </button>
@@ -258,9 +323,6 @@
                         <button onclick="copyToClipboard('{{$element}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-sm btn-config-copy">
                             کپی
                         </button>
-                    </div>
-                    <div id="config-qr-container-{{$index}}" class="hidden flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-950/40 rounded-2xl border border-purple-500/20 mt-2">
-                        <div id="config-qrcode-{{$index}}" class="config-qrcode-box bg-white p-2 rounded-xl border border-purple-500/10 inline-block shadow-md"></div>
                     </div>
                 </div>
                 {{end}}
@@ -286,6 +348,13 @@
             POWERED BY VELOX © 2026
         </div>
 
+    </div>
+
+    <div id="configPopupOverlay" class="config-popup-overlay" onclick="closeConfigPopup()">
+        <div class="config-popup-content" onclick="event.stopPropagation()">
+            <button class="config-popup-close" onclick="closeConfigPopup()">&times;</button>
+            <div id="popupQrBox"></div>
+        </div>
     </div>
 
     <div id="toast" class="fixed bottom-6 inset-x-4 mx-auto w-max max-w-xs bg-slate-950 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 opacity-0 transform translate-y-2 pointer-events-none z-50 flex items-center gap-2 border border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
@@ -386,27 +455,27 @@
             qrVisible = !qrVisible;
         }
 
-        const generatedConfigQRs = {};
-        function toggleConfigQR(index, configText) {
-            const container = document.getElementById(`config-qr-container-${index}`);
-            const qrElement = document.getElementById(`config-qrcode-${index}`);
+        /* ساخت پاپ‌آپ مجزا برای باز شدن کیو‌آر کد روی صفحه */
+        function openConfigPopup(configText) {
+            const overlay = document.getElementById('configPopupOverlay');
+            const box = document.getElementById('popupQrBox');
             
-            if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden');
-                if (!generatedConfigQRs[index]) {
-                    new QRCode(qrElement, {
-                        text: configText,
-                        width: 140,
-                        height: 140,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.L
-                    });
-                    generatedConfigQRs[index] = true;
-                }
-            } else {
-                container.classList.add('hidden');
-            }
+            box.innerHTML = '';
+            
+            new QRCode(box, {
+                text: configText,
+                width: 180,
+                height: 180,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+            
+            overlay.style.display = 'flex';
+        }
+
+        function closeConfigPopup() {
+            document.getElementById('configPopupOverlay').style.display = 'none';
         }
 
         function toggleDropdown() {
@@ -643,4 +712,4 @@
         }
     </script>
 </body>
-            </html>
+    </html>
