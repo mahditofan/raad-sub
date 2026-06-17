@@ -106,7 +106,7 @@
         }
 
         /* ==========================================
-           استایل پاپ‌آپ اختصاصی کیو‌آر کد کانفیگ‌ها
+           استایل پاپ‌آپ اختصاصی و باکیفیت کیو‌آر کد کانفیگ‌ها
            ========================================== */
         .config-popup-overlay {
             display: none;
@@ -145,6 +145,14 @@
             cursor: pointer;
             line-height: 1;
         }
+        
+        /* افزایش ابعاد نمایش تصویر نهایی بارکد برای اسکن سریع‌تر */
+        #popupQrCodeBox img {
+            display: block !important;
+            width: 180px !important;
+            height: 180px !important;
+        }
+
         @keyframes popupScaleIn {
             from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
@@ -281,7 +289,7 @@
             </div>
         </div>
 
-        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-950/40 rounded-2xl p-4 mb-5">
+        <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-900/30 p-4 rounded-2xl mb-5">
             <div class="flex justify-between items-center mb-2.5 px-1">
                 <div id="lblConfigList" class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center">
                     <i class="fa-solid fa-link ml-1 text-purple-500 dark:text-purple-400"></i> لینک‌ کانفیگ ها
@@ -435,23 +443,22 @@
             qrVisible = !qrVisible;
         }
 
-        /* ==========================================
-           توابع پاپ‌آپ جدید بدون هدر سفید اضافه
-           ========================================== */
+        /* ==========================================================================
+           تنظیم دقیق سطح تصحیح خطا روی مقدار فوق‌العاده باکیفیت H جهت اسکن فوری برنامه
+           ========================================================================== */
         function openConfigPopup(index, configText) {
             const overlay = document.getElementById('configPopupOverlay');
             const box = document.getElementById('popupQrCodeBox');
             
             box.innerHTML = '';
             
-            // تولید کیو‌آر کد با همان ابعاد و کیفیت کد اصلی شما
             new QRCode(box, {
                 text: configText,
-                width: 110,
-                height: 110,
+                width: 260, // تولید ابعاد بزرگتر اصلی جهت جلوگیری از تاری تصویر هنگام بزرگنمایی
+                height: 260,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.M
+                correctLevel : QRCode.CorrectLevel.H // استفاده از بالاترین کیفیت برای بازخوانی آنی دوربین
             });
             
             overlay.style.display = 'flex';
