@@ -93,8 +93,8 @@
 
         .config-qrcode-box img {
             display: inline-block;
-            border-radius: 12px;
-            padding: 8px;
+            border-radius: 8px;
+            padding: 4px;
             background: white;
         }
 
@@ -103,6 +103,81 @@
             border-radius: 12px;
             padding: 8px;
             background: white;
+        }
+
+        /* ==========================================
+           استایل‌های اختصاصی مودال پاپ‌آپ کیو‌آر کد
+           ========================================== */
+        .config-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(13, 9, 38, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        .config-modal-content {
+            background-color: #1a153b;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            width: 85%;
+            max-width: 340px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        body.light .config-modal-content {
+            background-color: #f3f0ff;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+        }
+        .config-modal-header {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #c084fc;
+            direction: ltr;
+        }
+        .config-modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .config-modal-close:hover {
+            color: #f43f5e;
+        }
+        .config-modal-body {
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .config-modal-qr-wrapper {
+            background-color: #ffffff;
+            padding: 12px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .config-modal-qr-wrapper img {
+            display: block !important;
+            width: 180px;
+            height: 180px;
+        }
+        @keyframes modalFadeIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -148,7 +223,7 @@
 
         <div class="text-center mb-5">
             <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
-                <span id="subTitleStatic">مدیریت و وضعیت اشتراق کاربر</span>
+                <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
@@ -250,7 +325,8 @@
                 {{range $index, $element := .links}}
                 <div class="flex flex-col bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl shadow-sm gap-2">
                     <div class="flex items-center justify-between gap-2 text-[11px]">
-                        <button onclick="toggleConfigQR('{{$index}}', '{{$element}}')" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 px-2 py-1 rounded-lg flex items-center justify-center transition-all transform active:scale-95 shrink-0 gap-1 text-[10px] font-bold btn-config-qr">
+                        <!-- در اینجا تابع جدید جایگزین شده تا پنجره باز شود -->
+                        <button onclick="openConfigModal('{{$index}}', '{{$element}}')" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 px-2 py-1 rounded-lg flex items-center justify-center transition-all transform active:scale-95 shrink-0 gap-1 text-[10px] font-bold btn-config-qr">
                             <i class="fa-solid fa-qrcode text-xs"></i>
                             <span class="lbl-btn-config-qr">کیو‌آر کد</span>
                         </button>
@@ -258,9 +334,6 @@
                         <button onclick="copyToClipboard('{{$element}}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg font-bold transition-colors shrink-0 text-xs shadow-sm btn-config-copy">
                             کپی
                         </button>
-                    </div>
-                    <div id="config-qr-container-{{$index}}" class="hidden flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-950/40 rounded-2xl border border-purple-500/20 mt-2">
-                        <div id="config-qrcode-{{$index}}" class="config-qrcode-box bg-white p-2 rounded-xl border border-purple-500/10 inline-block shadow-md"></div>
                     </div>
                 </div>
                 {{end}}
@@ -286,6 +359,23 @@
             POWERED BY VELOX © 2026
         </div>
 
+    </div>
+
+    <!-- ==========================================
+       پنجره پاپ‌آپ سراسری (Modal Overlay) کیو‌آر کد کانفیگ‌ها
+       ========================================== -->
+    <div id="configQrModal" class="config-modal-overlay" onclick="closeConfigModal()">
+        <div class="config-modal-content" onclick="event.stopPropagation()">
+            <div class="config-modal-header">
+                <span id="configModalTitle">Config QR Code</span>
+                <button class="config-modal-close" onclick="closeConfigModal()">&times;</button>
+            </div>
+            <div class="config-modal-body">
+                <div class="config-modal-qr-wrapper">
+                    <div id="configModalQrContainer"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="toast" class="fixed bottom-6 inset-x-4 mx-auto w-max max-w-xs bg-slate-950 text-white text-xs font-bold px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 opacity-0 transform translate-y-2 pointer-events-none z-50 flex items-center gap-2 border border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
@@ -365,7 +455,7 @@
                 height: 140,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
+                correctLevel : QRCode.CorrectLevel.H
             });
         }
 
@@ -386,27 +476,51 @@
             qrVisible = !qrVisible;
         }
 
-        const generatedConfigQRs = {};
-        function toggleConfigQR(index, configText) {
-            const container = document.getElementById(`config-qr-container-${index}`);
-            const qrElement = document.getElementById(`config-qrcode-${index}`);
+        /* ==========================================
+           توابع مدیریت پنجره پاپ‌آپ بارکد کانفیگ‌ها
+           ========================================== */
+        let modalQrInstance = null;
+        function openConfigModal(index, configText) {
+            const modal = document.getElementById('configQrModal');
+            const titleElement = document.getElementById('configModalTitle');
+            const qrContainer = document.getElementById('configModalQrContainer');
             
-            if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden');
-                if (!generatedConfigQRs[index]) {
-                    new QRCode(qrElement, {
-                        text: configText,
-                        width: 140,
-                        height: 140,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.L
-                    });
-                    generatedConfigQRs[index] = true;
+            // استخراج پروتکل یا نام کانفیگ برای نمایش در هدر پاپ‌آپ
+            let cleanTitle = "Config QR Code";
+            try {
+                if (configText.includes("://")) {
+                    const parts = configText.split("://");
+                    const protocol = parts[0].toUpperCase();
+                    if (parts[1].includes("#")) {
+                        const namePart = decodeURIComponent(parts[1].split("#")[1]);
+                        cleanTitle = `${protocol} - ${namePart}`;
+                    } else {
+                        cleanTitle = `${protocol} Config`;
+                    }
                 }
-            } else {
-                container.classList.add('hidden');
+            } catch(e) {
+                cleanTitle = "Config QR Code";
             }
+            
+            titleElement.textContent = cleanTitle;
+            qrContainer.innerHTML = ''; 
+            
+            // ساخت بارکد داخل پاپ‌آپ با استفاده از اسکریپت qrcode.js موجود در صفحه شما
+            modalQrInstance = new QRCode(qrContainer, {
+                text: configText,
+                width: 180,
+                height: 180,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        function closeConfigModal() {
+            const modal = document.getElementById('configQrModal');
+            modal.style.display = 'none';
         }
 
         function toggleDropdown() {
@@ -641,6 +755,13 @@
                 toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
             }, 2500);
         }
+
+        // اضافه کردن قابلیت بستن مودال با دکمه Esc کیبورد
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeConfigModal();
+            }
+        });
     </script>
 </body>
-                </html>
+                    </html>
