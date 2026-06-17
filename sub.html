@@ -99,7 +99,7 @@
         }
 
         /* ==========================================
-           استایل پاپ‌آپ حرفه‌ای تاریک برای کیو‌آر کانفیگ‌ها
+           استایل پاپ‌آپ اصلاح‌شده (بدون حاشیه سفید بارکد)
            ========================================== */
         .config-popup-overlay {
             display: none;
@@ -130,7 +130,6 @@
             justify-content: center;
         }
 
-        /* ضربدر کاملاً شفاف بدون بک‌گراند دایره‌ای سفید */
         .config-popup-close {
             position: absolute;
             top: -44px;
@@ -151,11 +150,12 @@
             transform: scale(1.1);
         }
         
-        /* باکس رندر کیو‌آر کد بدون حاشیه یا مارجین سفید مزاحم */
+        /* حذف کامل حاشیه سفید و همرنگ کردن پس‌زمینه با بارکد */
         #popupQrBox {
             background: #ffffff !important;
-            padding: 6px !important; 
-            border-radius: 14px !important;
+            padding: 0px !important; /* حذف پدینگ برای از بین بردن خط سفید دور قاب */
+            margin: 0px !important;
+            border-radius: 12px !important;
             overflow: hidden !important;
             display: inline-block !important;
         }
@@ -299,7 +299,7 @@
 
         <div id="qrContainer" class="max-h-0 opacity-0 overflow-hidden bg-white dark:bg-slate-950/40 border border-transparent rounded-2xl text-center mb-5 transition-all duration-300">
             <div class="p-4 flex flex-col items-center justify-center">
-                <div id="lblQrDesc" class="text-xs font-bold text-slate-600 dark:text-purple-400 mb-3">اسکن تصویری بارکد اشتراک</div>
+                <div id="lblQrDesc" class="text-xs font-bold text-slate-600 dark:text-purple-400 mb-3">اسکن تصویری بارکد اشتراق</div>
                 <div id="qrcode" class="bg-white p-2 rounded-xl border border-purple-500/10 inline-block shadow-md"></div>
             </div>
         </div>
@@ -318,7 +318,6 @@
                 {{range $index, $element := .links}}
                 <div class="flex flex-col bg-white dark:bg-slate-950/80 border border-purple-500/10 dark:border-purple-950/30 p-2.5 rounded-xl shadow-sm gap-2">
                     <div class="flex items-center justify-between gap-2 text-[11px]">
-                        <!-- فراخوانی سیستم پاپ‌آپ سراسری جدید -->
                         <button onclick="openConfigPopup('{{$element}}')" class="bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-500 dark:text-purple-400 px-2 py-1 rounded-lg flex items-center justify-center transition-all transform active:scale-95 shrink-0 gap-1 text-[10px] font-bold btn-config-qr">
                             <i class="fa-solid fa-qrcode text-xs"></i>
                             <span class="lbl-btn-config-qr">کیو‌آر کد</span>
@@ -354,7 +353,6 @@
 
     </div>
 
-    <!-- ساختار پاپ‌آپ سراسری کیو‌آر کدهای کانفیگ بدون المان‌های سفید اضافه -->
     <div id="configPopupOverlay" class="config-popup-overlay" onclick="closeConfigPopup()">
         <div class="config-popup-content" onclick="event.stopPropagation()">
             <button class="config-popup-close" onclick="closeConfigPopup()">&times;</button>
@@ -460,7 +458,7 @@
             qrVisible = !qrVisible;
         }
 
-        /* تابع باز کردن پاپ‌آپ سراسری و رندر آنی بدون افت کیفیت */
+        /* تولید بارکد بدون مارجین یا حاشیه سفید مزاحم (تنظیم margin روی 0) */
         function openConfigPopup(configText) {
             const overlay = document.getElementById('configPopupOverlay');
             const box = document.getElementById('popupQrBox');
@@ -717,4 +715,4 @@
         }
     </script>
 </body>
-    </html>
+                    </html>
