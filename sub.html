@@ -99,7 +99,7 @@
         }
 
         /* ==========================================
-           استایل پاپ‌آپ سراسری جدید برای کانفیگ‌ها
+           استایل پاپ‌آپ سراسری کانفیگ‌ها
            ========================================== */
         .config-popup-overlay {
             display: none;
@@ -150,10 +150,11 @@
             transform: scale(1.1);
         }
         
+        /* باکس سفیدِ پس‌زمینه کلاً حذف شد */
         #popupQrBox {
-            background: #ffffff !important;
-            padding: 10px !important;
-            border-radius: 16px !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
             display: inline-block !important;
         }
         
@@ -455,7 +456,7 @@
             qrVisible = !qrVisible;
         }
 
-        /* ساخت پاپ‌آپ مجزا برای باز شدن کیو‌آر کد روی صفحه */
+        /* ساخت پاپ‌آپی مستقل و نِیتیو برای نمایش کیو‌آر کدها */
         function openConfigPopup(configText) {
             const overlay = document.getElementById('configPopupOverlay');
             const box = document.getElementById('popupQrBox');
