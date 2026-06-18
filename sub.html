@@ -211,7 +211,7 @@
 
         <div class="text-center mb-5">
             <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
-                <span id="subTitleStatic">مدیریت و وضعیت اشتراق کاربر</span>
+                <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
@@ -352,6 +352,7 @@
         <div class="config-popup-content" onclick="event.stopPropagation()">
             <button class="config-popup-close" onclick="closeConfigPopup()">&times;</button>
             <div id="popupQrBox"></div>
+            <div id="popupHelpText" class="text-[11px] font-bold text-purple-400/80 mt-4 tracking-wide">« برای بستن کلیک کنید یا بیرون کادر بزنید »</div>
         </div>
     </div>
 
@@ -453,7 +454,6 @@
             qrVisible = !qrVisible;
         }
 
-        /* رفع مشکل رندر دابل و حذف مربع خالی اضافی */
         function openConfigPopup(configText) {
             const overlay = document.getElementById('configPopupOverlay');
             const box = document.getElementById('popupQrBox');
@@ -518,7 +518,8 @@
                 copyFail: "خطا در کپی سیگنال اشتراک!",
                 downloadTitle: "برنامه‌های پیشنهادی",
                 tabAndroid: "اندروید", tabIos: "آیفون", tabWin: "ویندوز",
-                currentLangBtn: "فارسی"
+                currentLangBtn: "فارسی",
+                popupHelp: "« برای بستن کلیک کنید یا بیرون کادر بزنید »"
             },
             en: {
                 staticTitle: "Subscription Status for",
@@ -543,7 +544,8 @@
                 copyFail: "Failed to copy to clipboard!",
                 downloadTitle: "Recommended Apps",
                 tabAndroid: "Android", tabIos: "iOS", tabWin: "Windows",
-                currentLangBtn: "English"
+                currentLangBtn: "English",
+                popupHelp: "« Click to close or tap outside »"
             }
         };
 
@@ -582,6 +584,7 @@
             document.getElementById('tab-win').innerText = data.tabWin;
             document.getElementById('btnCopyAllText').innerText = data.copyAll;
             document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ${currentLang === 'fa' ? 'ml-1' : 'mr-1'} text-purple-500"></i> ` + data.configList;
+            document.getElementById('popupHelpText').innerText = data.popupHelp;
 
             const configCopyButtons = document.querySelectorAll('.btn-config-copy');
             configCopyButtons.forEach(btn => {
@@ -710,4 +713,4 @@
         }
     </script>
 </body>
-    </html>
+                    </html>
