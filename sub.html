@@ -150,7 +150,6 @@
             transform: scale(1.1);
         }
         
-        /* باکس سفیدِ پس‌زمینه کلاً حذف شد */
         #popupQrBox {
             background: transparent !important;
             padding: 0 !important;
@@ -158,12 +157,14 @@
             display: inline-block !important;
         }
         
+        /* استایل تصویر داخلی بارکد مودال برای حذف کامل کادر سفید رندر شده */
         #popupQrBox img {
             display: block !important;
             width: 180px !important;
             height: 180px !important;
             padding: 0 !important;
             margin: 0 !important;
+            background: transparent !important;
         }
 
         @keyframes popupScaleIn {
@@ -456,7 +457,7 @@
             qrVisible = !qrVisible;
         }
 
-        /* ساخت پاپ‌آپی مستقل و نِیتیو برای نمایش کیو‌آر کدها */
+        /* ساخت پاپ‌آپی کاملاً ترنسپرنت بدون کادر سفید رنگ برای بارکد */
         function openConfigPopup(configText) {
             const overlay = document.getElementById('configPopupOverlay');
             const box = document.getElementById('popupQrBox');
@@ -467,8 +468,8 @@
                 text: configText,
                 width: 180,
                 height: 180,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
+                colorDark : "#a855f7", /* کدهای داخل بارکد را بنفش نئونی کردیم تا روی تم تاریک به شدت خوانا و شیک باشد */
+                colorLight : "transparent", /* کادر و پس‌زمینه سفیدِ تصویر کلاً شفاف و حذف شد */
                 correctLevel : QRCode.CorrectLevel.L
             });
             
@@ -713,4 +714,4 @@
         }
     </script>
 </body>
-    </html>
+                </html>
