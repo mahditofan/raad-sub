@@ -304,7 +304,7 @@
             </button>
             <button onclick="copyToClipboard('{{.subUrl}}')" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm h-12 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.25)] border border-purple-500/20">
                 <i class="fa-solid fa-copy"></i>
-                <span id="btnCopySub">کپی لینک اشتراق کلیک کنید</span>
+                <span id="btnCopySub">کپی لینک اشتراک کلیک کنید</span>
             </button>
         </div>
 
@@ -348,13 +348,11 @@
                 <i class="fa-solid fa-star text-purple-500 dark:text-purple-400"></i>
                 <span id="lblDownloadTitle">برنامه‌های پیشنهادی</span>
             </div>
-            
             <div class="flex gap-1 mb-3 bg-white/5 dark:bg-slate-950/40 p-1 rounded-xl border border-purple-500/5">
                 <button onclick="switchPlatform('android')" id="tab-android" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow transition-all">اندروید</button>
                 <button onclick="switchPlatform('ios')" id="tab-ios" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all">آیفون</button>
                 <button onclick="switchPlatform('win')" id="tab-win" class="flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all">ویندوز</button>
             </div>
-
             <div id="appsGrid" class="grid grid-cols-2 gap-2"></div>
         </div>
 
@@ -379,7 +377,6 @@
 
     <script>
         const subUrlValue = "{{.subUrl}}";
-
         const appDatabase = {
             android: [
                 { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
@@ -390,107 +387,99 @@
                 { name: "Incy", intent: `incy://import?url=${encodeURIComponent(subUrlValue)}` }
             ],
             ios: [
-                { name: "Shadowrocket", intent: `shadowrocket://add/sub://${btoa(subUrlValue)}` },
                 { name: "V2Box", intent: `v2box://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "Streisand", intent: `streisand://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "V2RayTun", intent: `v2raytun://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "NPV Tunnel", intent: `npv://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Happ", intent: `happ://import?url=${encodeURIComponent(subUrlValue)}` }
+                { name: "Streisand", intent: `streisand://import/${subUrlValue}` },
+                { name: "Shadowrocket", intent: `shadowrocket://add/sub://${btoa(subUrlValue)}` },
+                { name: "FoXray", intent: `foxray://install?sub=${encodeURIComponent(subUrlValue)}` },
+                { name: "SingBox", intent: `sing-box://import-remote?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "Loon", intent: `loon://import?url=${encodeURIComponent(subUrlValue)}` }
             ],
             win: [
-                { name: "v2rayN", intent: `v2rayng://install?sub=${encodeURIComponent(subUrlValue)}` },
-                { name: "Nekoray", intent: `nekoray://import?url=${encodeURIComponent(subUrlValue)}` },
-                { name: "Clash Verge", intent: `clash://install-config?url=${encodeURIComponent(subUrlValue)}` }
+                { name: "v2rayN", intent: `v2rayn://install?sub=${encodeURIComponent(subUrlValue)}` },
+                { name: "NekoBox", intent: `nekobox://import?url=${encodeURIComponent(subUrlValue)}` },
+                { name: "SingBox", intent: `sing-box://import-remote?url=${encodeURIComponent(subUrlValue)}` }
             ]
         };
 
-        function switchPlatform(platform) {
-            const tabs = ['android', 'ios', 'win'];
-            tabs.forEach(t => {
-                const tabBtn = document.getElementById(`tab-${t}`);
-                if (t === platform) {
-                    tabBtn.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow transition-all";
-                } else {
-                    tabBtn.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all";
-                }
-            });
-
-            const grid = document.getElementById('appsGrid');
-            grid.innerHTML = '';
-
-            appDatabase[platform].forEach(app => {
-                const btn = document.createElement('a');
-                btn.href = app.intent;
-                btn.className = "bg-white dark:bg-slate-950/40 border border-purple-500/10 dark:border-purple-950/30 p-2 rounded-xl text-center font-bold text-[11px] text-slate-700 dark:text-slate-300 hover:border-purple-500/40 dark:hover:border-purple-500/40 transition-all active:scale-95 shadow-sm block truncate";
-                btn.innerText = app.name;
-                grid.appendChild(btn);
-            });
-        }
-
-        switchPlatform('android');
-
-        const totalByte = parseInt("{{.totalByte}}");
-        const downloadByte = parseInt("{{.downloadByte}}");
-        const uploadByte = parseInt("{{.uploadByte}}");
-        const usedByte = downloadByte + uploadByte;
-
-        if (totalByte > 0) {
-            let percentage = (usedByte / totalByte) * 100;
-            if (percentage > 100) percentage = 100;
-            document.getElementById('progressBar').style.width = percentage + '%';
-        } else {
-            document.getElementById('progressBar').style.width = '100%';
-        }
-
-        if(subUrlValue && subUrlValue !== "") {
-            new QRCode(document.getElementById("qrcode"), {
-                text: subUrlValue,
-                width: 140,
-                height: 140,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
-        }
-
-        let qrVisible = false;
-        function toggleQR() {
-            const container = document.getElementById('qrContainer');
-            if(!qrVisible) {
-                container.style.maxHeight = "240px";
-                container.style.opacity = "1";
-                container.classList.remove('border-transparent');
-                container.classList.add('border-purple-500/20', 'mt-2');
-            } else {
-                container.style.maxHeight = "0";
-                container.style.opacity = "0";
-                container.classList.remove('border-purple-500/20', 'mt-2');
-                container.classList.add('border-transparent');
+        const langData = {
+            fa: {
+                title: "وضعیت اشتراک",
+                subTitleStatic: "مدیریت و وضعیت اشتراک کاربر",
+                statusActiveText: "اتصال فعال و معتبر",
+                statusInactiveText: "اتصال منقضی یا غیرفعال",
+                lblTimeRemaining: "زمان باقی‌مانده تا انقضای سرویس",
+                lblDays: "روز",
+                lblHours: "ساعت",
+                lblMinutes: "دقیقه",
+                lblSeconds: "ثانیه",
+                lblUsed: "مصرف شده",
+                lblRemaining: "حجم باقیمانده",
+                lblTotal: "کل حجم اکانت",
+                lblDownload: "دانلود:",
+                lblUpload: "آپلود:",
+                btnQrText: "کیو‌آر کد",
+                btnCopySub: "کپی لینک اشتراک کلیک کنید",
+                lblQrDesc: "اسکن تصویری بارکد اشتراک",
+                lblConfigList: "لینک‌ کانفیگ ها",
+                btnCopyAllText: "کپی همه",
+                lblDownloadTitle: "برنامه‌های پیشنهادی",
+                popupHelpText: "« برای بستن کلیک کنید یا بیرون کادر بزنید »",
+                copySuccess: "با موفقیت در حافظه کپی شد.",
+                allCopySuccess: "تمامی کانفیگ‌ها کپی شدند.",
+                copyFail: "خطا در کپی اطلاعات!",
+                unlimited: "نامحدود",
+                expired: "منقضی شده",
+                onlineText: 'وضعیت اتصال: آنلاین <span class="online-pulse"></span>',
+                offlineText: "وضعیت اتصال: آفلاین",
+                checkingText: "وضعیت اتصال: در حال بررسی...",
+                shamsiPrefix: "تاریخ انقضا: ",
+                tabAndroid: "اندروید",
+                tabIos: "آیفون",
+                tabWin: "ویندوز",
+                lblBtnConfigQr: "کیو‌آر کد",
+                btnConfigCopy: "کپی"
+            },
+            en: {
+                title: "Subscription Status",
+                subTitleStatic: "User Subscription & Management",
+                statusActiveText: "Active & Valid Connection",
+                statusInactiveText: "Expired or Inactive",
+                lblTimeRemaining: "Remaining Time Until Expiration",
+                lblDays: "Days",
+                lblHours: "Hours",
+                lblMinutes: "Min",
+                lblSeconds: "Sec",
+                lblUsed: "Used Traffic",
+                lblRemaining: "Remaining",
+                lblTotal: "Total Traffic",
+                lblDownload: "Down:",
+                lblUpload: "Up:",
+                btnQrText: "QR Code",
+                btnCopySub: "Copy Subscription Link",
+                lblQrDesc: "Scan Subscription QR Code",
+                lblConfigList: "Configurations List",
+                btnCopyAllText: "Copy All",
+                lblDownloadTitle: "Recommended Apps",
+                popupHelpText: "« Click outside or close button to exit »",
+                copySuccess: "Copied to clipboard successfully.",
+                allCopySuccess: "All configs copied to clipboard.",
+                copyFail: "Failed to copy!",
+                unlimited: "Unlimited",
+                expired: "Expired",
+                onlineText: 'Connection: Online <span class="online-pulse"></span>',
+                offlineText: "Connection: Offline",
+                checkingText: "Connection: Checking...",
+                shamsiPrefix: "Expiry Date: ",
+                tabAndroid: "Android",
+                tabIos: "iOS",
+                tabWin: "Windows",
+                lblBtnConfigQr: "QR Code",
+                btnConfigCopy: "Copy"
             }
-            qrVisible = !qrVisible;
-        }
+        };
 
-        function openConfigPopup(configText) {
-            const overlay = document.getElementById('configPopupOverlay');
-            const box = document.getElementById('popupQrBox');
-            
-            box.innerHTML = '';
-            
-            new QRCode(box, {
-                text: configText,
-                width: 180,
-                height: 180,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
-            
-            overlay.style.display = 'flex';
-        }
-
-        function closeConfigPopup() {
-            document.getElementById('configPopupOverlay').style.display = 'none';
-        }
+        let currentLang = "fa";
+        let currentPlatform = "android";
 
         function toggleDropdown() {
             const menu = document.getElementById('langMenu');
@@ -499,235 +488,90 @@
             arrow.classList.toggle('rotate-180');
         }
 
-        window.addEventListener('click', function(e) {
-            const container = document.getElementById('langDropdownContainer');
-            const menu = document.getElementById('langMenu');
-            const arrow = document.getElementById('dropdownArrow');
-            if (!container.contains(e.target)) {
-                menu.classList.add('hidden');
-                arrow.classList.remove('rotate-180');
-            }
-        });
-
-        let currentLang = 'fa';
-        const langData = {
-            fa: {
-                staticTitle: "مدیریت و وضعیت اشتراک کاربر",
-                active: "اتصال فعال و معتبر",
-                inactive: "اتصال منقضی یا غیرفعال",
-                timeRemaining: "زمان باقی‌مانده تا انقضای سرویس",
-                days: "روز", hours: "ساعت", minutes: "دقیقه", seconds: "ثانیه",
-                used: "مصرف شده", remaining: "حجم باقیمانده", total: "کل حجم اکانت",
-                download: "دانلود:", upload: "آپلود:",
-                copySub: "کپی لینک اشتراک کلیک کنید",
-                configList: "لینک‌ کانفیگ ها",
-                copyAll: "کپی همه",
-                configCopyBtn: "کپی",
-                configQrBtn: "کیو‌آر کد",
-                qrDesc: "اسکن تصویری بارکد اشتراک",
-                qrText: "کیو‌آر کد",
-                unlimited: "نامحدود",
-                expiryLabel: "تاریخ انقضا: ",
-                online: "آنلاین",
-                lastSeen: "آخرین بازدید: ",
-                neverConnected: "وضعیت اتصال: بدون فعالیت اخیر",
-                noExpiry: "Connection Validity: No Expiry",
-                copySuccess: "با موفقیت در حافظه کپی شد.",
-                allCopySuccess: "همه کانفیگ‌ها کپی شدند.",
-                copyFail: "خطا در کپی سیگنال اشتراک!",
-                downloadTitle: "برنامه‌های پیشنهادی",
-                tabAndroid: "اندروید", tabIos: "آیفون", tabWin: "ویندوز",
-                currentLangBtn: "فارسی",
-                popupHelp: "« برای بستن کلیک کنید یا بیرون کادر بزنید »"
-            },
-            en: {
-                staticTitle: "Subscription Status for",
-                active: "Active Connection",
-                inactive: "Expired or Inactive Connection",
-                timeRemaining: "Time Remaining Until Subscription Expires",
-                days: "Days", hours: "Hours", minutes: "Mins", seconds: "Secs",
-                used: "Used", remaining: "Remaining", total: "Total Data",
-                download: "Download:", upload: "Upload:",
-                copySub: "Click to Copy Subscription Link",
-                configList: "Configs List",
-                copyAll: "Copy All",
-                configCopyBtn: "Copy",
-                configQrBtn: "QR",
-                qrDesc: "Scan Subscription QR Code",
-                qrText: "QR Code",
-                unlimited: "Unlimited",
-                expiryLabel: "Expiry Date: ",
-                online: "Online",
-                lastSeen: "Last seen: ",
-                neverConnected: "Status: No recent activity",
-                noExpiry: "Connection Validity: No Expiry",
-                copySuccess: "Successfully copied to clipboard.",
-                allCopySuccess: "All configs copied.",
-                copyFail: "Failed to copy to clipboard!",
-                downloadTitle: "Recommended Apps",
-                tabAndroid: "Android", tabIos: "iOS", tabWin: "Windows",
-                currentLangBtn: "English",
-                popupHelp: "« Click to close or tap outside »"
-            }
-        };
-
         function selectLang(lang) {
             currentLang = lang;
-            const data = langData[currentLang];
-            
-            document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
-            document.getElementById('currentLangText').innerText = data.currentLangBtn;
-            
             document.getElementById('langMenu').classList.add('hidden');
             document.getElementById('dropdownArrow').classList.remove('rotate-180');
-
-            document.getElementById('subTitleStatic').innerText = data.staticTitle;
-            if (document.getElementById('statusActiveText')) document.getElementById('statusActiveText').innerText = data.active;
-            if (document.getElementById('statusInactiveText')) document.getElementById('statusInactiveText').innerText = data.inactive;
-            document.getElementById('lblTimeRemaining').innerHTML = `<i class="fa-regular fa-clock ${currentLang === 'fa' ? 'ml-1' : 'mr-1'}"></i> ` + data.timeRemaining;
             
-            document.getElementById('lblDays').innerText = data.days;
-            document.getElementById('lblHours').innerText = data.hours;
-            document.getElementById('lblMinutes').innerText = data.minutes;
-            document.getElementById('lblSeconds').innerText = data.seconds;
-
-            document.getElementById('lblUsed').innerText = data.used;
-            document.getElementById('lblRemaining').innerText = data.remaining;
-            document.getElementById('lblTotal').innerText = data.total;
+            const htmlTag = document.documentElement;
+            if (lang === 'fa') {
+                htmlTag.setAttribute('lang', 'fa');
+                htmlTag.setAttribute('dir', 'rtl');
+                document.getElementById('currentLangText').innerText = "فارسی";
+            } else {
+                htmlTag.setAttribute('lang', 'en');
+                htmlTag.setAttribute('dir', 'ltr');
+                document.getElementById('currentLangText').innerText = "English";
+            }
             
-            document.getElementById('lblDownload').innerText = data.download;
-            document.getElementById('lblUpload').innerText = data.upload;
-            document.getElementById('btnCopySub').innerText = data.copySub;
-            document.getElementById('lblQrDesc').innerText = data.qrDesc;
-            document.getElementById('btnQrText').innerText = data.qrText;
-            document.getElementById('lblDownloadTitle').innerText = data.downloadTitle;
+            applyLanguageStrings();
+            switchPlatform(currentPlatform);
+        }
+
+        function applyLanguageStrings() {
+            const data = langData[currentLang];
+            document.getElementById('subTitleStatic').innerText = data.subTitleStatic;
+            
+            const statusActiveText = document.getElementById('statusActiveText');
+            if (statusActiveText) statusActiveText.innerText = data.statusActiveText;
+            const statusInactiveText = document.getElementById('statusInactiveText');
+            if (statusInactiveText) statusInactiveText.innerText = data.statusInactiveText;
+            
+            document.getElementById('lblTimeRemaining').innerHTML = `<i class="fa-regular fa-clock ml-1 mr-1"></i> ${data.lblTimeRemaining}`;
+            document.getElementById('lblDays').innerText = data.lblDays;
+            document.getElementById('lblHours').innerText = data.lblHours;
+            document.getElementById('lblMinutes').innerText = data.lblMinutes;
+            document.getElementById('lblSeconds').innerText = data.lblSeconds;
+            
+            document.getElementById('lblUsed').innerText = data.lblUsed;
+            document.getElementById('lblRemaining').innerText = data.lblRemaining;
+            document.getElementById('lblTotal').innerText = data.lblTotal;
+            
+            const valRemained = document.getElementById('valRemained');
+            if (valRemained && (valRemained.innerText === 'نامحدود' || valRemained.innerText === 'Unlimited')) {
+                valRemained.innerText = data.unlimited;
+            }
+            const valTotal = document.getElementById('valTotal');
+            if (valTotal && (valTotal.innerText === 'نامحدود' || valTotal.innerText === 'Unlimited')) {
+                valTotal.innerText = data.unlimited;
+            }
+
+            const trafficDetails = document.getElementById('trafficDetails');
+            if (trafficDetails) {
+                trafficDetails.children[0].innerHTML = `<i class="fa-solid fa-arrow-down text-purple-500/70 ml-0.5 mr-0.5"></i> <span>${data.lblDownload}</span> {{.download}}`;
+                trafficDetails.children[1].innerHTML = `<i class="fa-solid fa-arrow-up text-pink-500/70 ml-0.5 mr-0.5"></i> <span>${data.lblUpload}</span> {{.upload}}`;
+            }
+
+            document.getElementById('btnQrText').innerText = data.btnQrText;
+            document.getElementById('btnCopySub').innerText = data.btnCopySub;
+            document.getElementById('lblQrDesc').innerText = data.lblQrDesc;
+            
+            document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ml-1 mr-1 text-purple-500 dark:text-purple-400"></i> ${data.lblConfigList}`;
+            document.getElementById('btnCopyAllText').innerText = data.btnCopyAllText;
+            document.getElementById('lblDownloadTitle').innerText = data.lblDownloadTitle;
+            document.getElementById('popupHelpText').innerText = data.popupHelpText;
+
             document.getElementById('tab-android').innerText = data.tabAndroid;
             document.getElementById('tab-ios').innerText = data.tabIos;
             document.getElementById('tab-win').innerText = data.tabWin;
-            document.getElementById('btnCopyAllText').innerText = data.copyAll;
-            document.getElementById('lblConfigList').innerHTML = `<i class="fa-solid fa-link ${currentLang === 'fa' ? 'ml-1' : 'mr-1'} text-purple-500"></i> ` + data.configList;
-            document.getElementById('popupHelpText').innerText = data.popupHelp;
 
-            const configCopyButtons = document.querySelectorAll('.btn-config-copy');
-            configCopyButtons.forEach(btn => {
-                btn.innerText = data.configCopyBtn;
-            });
+            document.querySelectorAll('.lbl-btn-config-qr').forEach(el => el.innerText = data.lblBtnConfigQr);
+            document.querySelectorAll('.btn-config-copy').forEach(el => el.innerText = data.btnConfigCopy);
 
-            const configQrLabels = document.querySelectorAll('.lbl-btn-config-qr');
-            configQrLabels.forEach(lbl => {
-                lbl.innerText = data.configQrBtn;
-            });
-
-            if ("{{.total}}" === "0") {
-                document.getElementById('valRemained').innerText = data.unlimited;
-                document.getElementById('valTotal').innerText = data.unlimited;
-            }
-
-            updateClockAndActivity();
+            updateUserActivityUI();
+            updateShamsiUI();
         }
 
-        const expireTimestamp = parseInt("{{.expire}}");
-        let lastConnectRaw = "{{.lastConnect}}";
-        let lastConnectTimestamp = parseInt(lastConnectRaw);
-        const isConfigEnabled = "{{.enabled}}" === "true";
-
-        if (lastConnectTimestamp > 9999999999) { 
-            lastConnectTimestamp = Math.floor(lastConnectTimestamp / 1000);
+        window.onclick = function(event) {
+            if (!document.getElementById('langDropdownContainer').contains(event.target)) {
+                document.getElementById('langMenu').classList.add('hidden');
+                document.getElementById('dropdownArrow').classList.remove('rotate-180');
+            }
         }
-
-        function updateClockAndActivity() {
-            const data = langData[currentLang];
-            let isOnline = false;
-            const nowUnix = Math.floor(Date.now() / 1000);
-            
-            if (isConfigEnabled && lastConnectTimestamp > 0) {
-                // مقایسه آنی با زمان لود صفحه یا بروزرسانی در لحظه بدون تاخیر بافری
-                if (Math.abs(nowUnix - lastConnectTimestamp) <= 35) {
-                    isOnline = true;
-                }
-            }
-            
-            if (isOnline) {
-                document.getElementById('userActivityBox').innerHTML = `
-                    <span class="online-pulse"></span>
-                    <span class="text-emerald-500 font-black">${data.online}</span>
-                `;
-            } else {
-                if (isConfigEnabled && lastConnectTimestamp && lastConnectTimestamp > 0) {
-                    try {
-                        const locale = currentLang === 'fa' ? 'fa-IR' : 'en-US';
-                        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-                        const lastSeenStr = new Intl.DateTimeFormat(locale, options).format(new Date(lastConnectTimestamp * 1000));
-                        document.getElementById('userActivityBox').innerHTML = `
-                            <span class="text-slate-500 dark:text-slate-400 font-normal">${data.lastSeen}${lastSeenStr}</span>
-                        `;
-                    } catch (e) {
-                        document.getElementById('userActivityBox').innerHTML = `<span class="text-slate-500">${data.neverConnected}</span>`;
-                    }
-                } else {
-                    document.getElementById('userActivityBox').innerHTML = `<span class="text-slate-500">${data.neverConnected}</span>`;
-                }
-            }
-            
-            if (!expireTimestamp || expireTimestamp === 0) {
-                document.getElementById('countdownBox').innerHTML = `<span class="text-purple-600 dark:text-purple-400 font-bold text-lg">${data.unlimited}</span>`;
-                document.getElementById('shamsiDate').innerText = data.noExpiry;
-                return;
-            }
-
-            const expireMs = expireTimestamp * 1000;
-
-            try {
-                const locale = currentLang === 'fa' ? 'fa-IR' : 'en-US';
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                const dateStr = new Intl.DateTimeFormat(locale, options).format(new Date(expireMs));
-                document.getElementById('shamsiDate').innerText = data.expiryLabel + dateStr;
-            } catch (e) {
-                document.getElementById('shamsiDate').innerText = "";
-            }
-
-            const nowMsForCountdown = Date.now();
-            const diffMs = expireMs - nowMsForCountdown;
-
-            if (diffMs <= 0) {
-                document.getElementById('countdownBox').innerHTML = `<span class="text-rose-500 font-bold text-xs">Subscription has expired! / سرویس منقضی شده است</span>`;
-                return;
-            }
-
-            const totalSecs = Math.floor(diffMs / 1000);
-            const secs = totalSecs % 60;
-            const totalMins = Math.floor(totalSecs / 60);
-            const mins = totalMins % 60;
-            const totalHours = Math.floor(totalMins / 60);
-            const hours = totalHours % 24;
-            const days = Math.floor(totalHours / 24);
-
-            const formatNum = num => {
-                let s = String(num).padStart(2, '0');
-                if (currentLang === 'fa') {
-                    const f = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-                    return s.replace(/[0-9]/g, w => f[+w]);
-                }
-                return s;
-            };
-
-            document.getElementById('live-days').innerText = formatNum(days);
-            document.getElementById('live-hours').innerText = formatNum(hours);
-            document.getElementById('live-mins').innerText = formatNum(mins);
-            document.getElementById('live-secs').innerText = formatNum(secs);
-        }
-
-        if (expireTimestamp && expireTimestamp > 0) {
-            setInterval(updateClockAndActivity, 1000);
-        }
-        
-        setInterval(updateClockAndActivity, 1000);
-        updateClockAndActivity();
 
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
-            
             if (body.classList.contains('dark')) {
                 body.classList.remove('dark');
                 body.classList.add('light');
@@ -773,6 +617,188 @@
                 toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
             }, 2500);
         }
+
+        let mainQrGenerated = false;
+        function toggleQR() {
+            const container = document.getElementById('qrContainer');
+            if (container.classList.contains('max-h-0')) {
+                container.classList.remove('max-h-0', 'opacity-0', 'border-transparent');
+                container.classList.add('max-h-64', 'opacity-100', 'border-purple-500/10', 'p-4');
+                if (!mainQrGenerated) {
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: "{{.subUrl}}",
+                        width: 140,
+                        height: 140,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                    mainQrGenerated = true;
+                }
+            } else {
+                container.classList.add('max-h-0', 'opacity-0', 'border-transparent');
+                container.classList.remove('max-h-64', 'opacity-100', 'border-purple-500/10', 'p-4');
+            }
+        }
+
+        function openConfigPopup(link) {
+            const overlay = document.getElementById('configPopupOverlay');
+            const qrBox = document.getElementById('popupQrBox');
+            qrBox.innerHTML = '';
+            overlay.style.display = 'flex';
+            new QRCode(qrBox, {
+                text: link,
+                width: 180,
+                height: 180,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function closeConfigPopup() {
+            document.getElementById('configPopupOverlay').style.display = 'none';
+        }
+
+        function switchPlatform(platform) {
+            currentPlatform = platform;
+            const tabs = ['android', 'ios', 'win'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                btn.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg text-slate-500 dark:text-purple-400 hover:bg-purple-500/5 transition-all";
+            });
+            
+            const activeBtn = document.getElementById(`tab-${platform}`);
+            activeBtn.className = "flex-1 py-1.5 text-[11px] font-bold rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow transition-all";
+            
+            const grid = document.getElementById('appsGrid');
+            grid.innerHTML = '';
+            
+            appDatabase[platform].forEach(app => {
+                const card = document.createElement('a');
+                card.href = app.intent;
+                card.className = "flex items-center justify-between bg-white dark:bg-slate-950/40 border border-purple-500/10 dark:border-purple-950/30 p-2 rounded-xl hover:border-purple-500/40 transition-all shadow-sm active:scale-98";
+                card.innerHTML = `
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 font-mono">${app.name}</span>
+                    <i class="fa-solid fa-circle-arrow-down text-purple-500 text-xs"></i>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        const expiryTimestamp = parseInt("{{.expiryTime}}") / 1000; 
+        const totalTraffic = parseFloat("{{.total}}");
+        const remainedTraffic = parseFloat("{{.remained}}");
+
+        function updateCountdown() {
+            const now = Math.floor(Date.now() / 1000);
+            const distance = expiryTimestamp - now;
+
+            if (isNaN(expiryTimestamp) || expiryTimestamp <= 0) {
+                document.getElementById('live-days').innerText = "00";
+                document.getElementById('live-hours').innerText = "00";
+                document.getElementById('live-mins').innerText = "00";
+                document.getElementById('live-secs').innerText = "00";
+                return;
+            }
+
+            if (distance < 0) {
+                document.getElementById('live-days').innerText = "00";
+                document.getElementById('live-hours').innerText = "00";
+                document.getElementById('live-mins').innerText = "00";
+                document.getElementById('live-secs').innerText = "00";
+                document.getElementById('countdownBox').classList.add('text-rose-500');
+                return;
+            }
+
+            const days = Math.floor(distance / (60 * 60 * 24));
+            const hours = Math.floor((distance % (60 * 60 * 24)) / (60 * 60));
+            const minutes = Math.floor((distance % (60 * 60)) / 60);
+            const seconds = Math.floor(distance % 60);
+
+            document.getElementById('live-days').innerText = String(days).padStart(2, '0');
+            document.getElementById('live-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('live-mins').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('live-secs').innerText = String(seconds).padStart(2, '0');
+        }
+
+        function calculateProgress() {
+            if (totalTraffic === 0 || isNaN(totalTraffic)) {
+                document.getElementById('progressBar').style.width = "100%";
+                return;
+            }
+            let usedPercent = ((totalTraffic - remainedTraffic) / totalTraffic) * 100;
+            if (usedPercent > 100) usedPercent = 100;
+            if (usedPercent < 0) usedPercent = 0;
+            document.getElementById('progressBar').style.width = `${usedPercent}%`;
+        }
+
+        let isUserOnline = false;
+        function checkUserActivity() {
+            const links = [];
+            {{range .links}} links.push("{{.}}"); {{end}}
+            
+            let hasOnlineConfig = false;
+            links.forEach(link => {
+                if(link.includes("online=true") || link.includes("status=active")) {
+                    hasOnlineConfig = true;
+                }
+            });
+
+            isUserOnline = hasOnlineConfig;
+            updateUserActivityUI();
+        }
+
+        function updateUserActivityUI() {
+            const data = langData[currentLang];
+            const box = document.getElementById('activityStatusText');
+            if (isUserOnline) {
+                box.innerHTML = data.onlineText;
+                box.className = "text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5";
+            } else {
+                box.innerHTML = data.offlineText;
+                box.className = "text-slate-500 dark:text-slate-400";
+            }
+        }
+
+        function toGregorianDate(timestamp) {
+            if (!timestamp || timestamp <= 0) return null;
+            return new Date(timestamp * 1000);
+        }
+
+        function getShamsiDate(gregorianDate) {
+            if (!gregorianDate) return "نامحدود";
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return gregorianDate.toLocaleDateString('fa-IR', options);
+        }
+
+        function updateShamsiUI() {
+            const data = langData[currentLang];
+            if (!expiryTimestamp || expiryTimestamp <= 0) {
+                document.getElementById('shamsiDate').innerText = (currentLang === 'fa') ? "تاریخ انقضا: نامحدود" : "Expiry Date: Unlimited";
+                return;
+            }
+            const gDate = toGregorianDate(expiryTimestamp);
+            if(currentLang === 'fa') {
+                document.getElementById('shamsiDate').innerText = data.shamsiPrefix + getShamsiDate(gDate);
+            } else {
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                document.getElementById('shamsiDate').innerText = data.shamsiPrefix + gDate.toLocaleDateString('en-US', options);
+            }
+        }
+
+        // مقداردهی اولیه و اجرای سریع بدون تأخیر
+        applyLanguageStrings();
+        switchPlatform('android');
+        calculateProgress();
+        
+        // اجرای در لحظه و بلافاصله وضعیت اتصال و تایمر
+        checkUserActivity();
+        updateCountdown();
+        
+        // بازه‌های زمانی برای بروزرسانی‌های بعدی
+        setInterval(updateCountdown, 1000);
+        setInterval(checkUserActivity, 1000); // بهینه‌سازی شده روی ۱ ثانیه برای آپدیت سریع و Real-time وضعیت آنلاین/آفلاین
     </script>
 </body>
-            </html>
+                        </html>
