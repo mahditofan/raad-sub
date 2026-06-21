@@ -304,7 +304,7 @@
             </button>
             <button onclick="copyToClipboard('{{.subUrl}}')" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm h-12 rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.25)] border border-purple-500/20">
                 <i class="fa-solid fa-copy"></i>
-                <span id="btnCopySub">کپی لینک اشتراک کلیک کنید</span>
+                <span id="btnCopySub">کپی لینک اشتراق کلیک کنید</span>
             </button>
         </div>
 
@@ -635,43 +635,18 @@
             lastConnectTimestamp = Math.floor(lastConnectTimestamp / 1000);
         }
 
-        // پیاده‌سازی سیستم فوق‌پیشرفته ردیابی زنده تغییر حجم مصرفی کاربر (Traffic Pulse Tracker)
-        // این سیستم تغییر حجم لحظه‌ای را مستقیماً با مرورگر همگام می‌کند تا باگ برطرف شود.
-        let initialUsedTraffic = usedByte;
-        let isUserCurrentlyTransferringData = false;
-        
-        // بررسی وضعیت در حافظه محلی مرورگر کاربر (Local Storage Sync) برای حفظ پایداری
-        if(window.localStorage.getItem('velox_last_traffic') !== null) {
-            let previousSavedTraffic = parseInt(window.localStorage.getItem('velox_last_traffic'));
-            if(usedByte > previousSavedTraffic) {
-                // اگر حجم دریافتی جدید بیشتر از حجم ثبت‌شده قبلی در مرورگر باشد، یعنی کاربر به طور زنده در حال مصرف ترافیک است.
-                isUserCurrentlyTransferringData = true;
-                window.localStorage.setItem('velox_active_until', String(Math.floor(Date.now() / 1000) + 120)); // تمدید ۲ دقیقه‌ای وضعیت آنلاین
-            }
-        }
-        window.localStorage.setItem('velox_last_traffic', String(usedByte));
-
         function updateClockAndActivity() {
             const data = langData[currentLang];
             let isOnline = false;
+            const nowUnix = Math.floor(Date.now() / 1000);
             
-            // اگر تغییر ترافیک زنده کشف شد یا زمان تمدید آنلاین بودن هنوز منقضی نشده باشد
-            if (isConfigEnabled) {
-                const nowUnix = Math.floor(Date.now() / 1000);
-                let activeUntil = parseInt(window.localStorage.getItem('velox_active_until') || "0");
-                
-                if (isUserCurrentlyTransferringData || nowUnix < activeUntil) {
+            if (isConfigEnabled && lastConnectTimestamp > 0) {
+                // مقایسه آنی با زمان لود صفحه یا بروزرسانی در لحظه بدون تاخیر بافری
+                if (Math.abs(nowUnix - lastConnectTimestamp) <= 35) {
                     isOnline = true;
-                } else {
-                    // پایش کمکی: اگر زمان آخرین اتصال زیر ۳۵ ثانیه پیش باشد
-                    const diffSeconds = nowUnix - lastConnectTimestamp;
-                    if (lastConnectTimestamp > 0 && diffSeconds >= 0 && diffSeconds <= 35) {
-                        isOnline = true;
-                    }
                 }
             }
             
-            // اعمال تغییرات وضعیت نمایشی آنلاین/آخرین بازدید بدون تغییر ساختار
             if (isOnline) {
                 document.getElementById('userActivityBox').innerHTML = `
                     <span class="online-pulse"></span>
@@ -746,7 +721,7 @@
             setInterval(updateClockAndActivity, 1000);
         }
         
-        setInterval(updateClockAndActivity, 2000);
+        setInterval(updateClockAndActivity, 1000);
         updateClockAndActivity();
 
         function toggleTheme() {
@@ -800,4 +775,4 @@
         }
     </script>
 </body>
-    </html>
+            </html>
