@@ -623,34 +623,62 @@
                 document.getElementById('valTotal').innerText = data.unlimited;
             }
 
-            updateClockAndDate();
+            updateClockAndActivity();
         }
 
         const expireTimestamp = parseInt("{{.expire}}");
-        
         let lastConnectRaw = "{{.lastConnect}}";
         let lastConnectTimestamp = parseInt(lastConnectRaw);
         const isConfigEnabled = "{{.enabled}}" === "true";
 
-        // مبدل هوشمند برای رفع باگ میلی‌ثانیه/ثانیه متغیرهای لینوکس و پنل
         if (lastConnectTimestamp > 9999999999) { 
             lastConnectTimestamp = Math.floor(lastConnectTimestamp / 1000);
         }
 
-        function updateClockAndDate() {
+        // پیاده‌سازی سیستم فوق‌پیشرفته ردیابی زنده تغییر حجم مصرفی کاربر (Traffic Pulse Tracker)
+        // این سیستم تغییر حجم لحظه‌ای را مستقیماً با مرورگر همگام می‌کند تا باگ برطرف شود.
+        let initialUsedTraffic = usedByte;
+        let isUserCurrentlyTransferringData = false;
+        
+        // بررسی وضعیت در حافظه محلی مرورگر کاربر (Local Storage Sync) برای حفظ پایداری
+        if(window.localStorage.getItem('velox_last_traffic') !== null) {
+            let previousSavedTraffic = parseInt(window.localStorage.getItem('velox_last_traffic'));
+            if(usedByte > previousSavedTraffic) {
+                // اگر حجم دریافتی جدید بیشتر از حجم ثبت‌شده قبلی در مرورگر باشد، یعنی کاربر به طور زنده در حال مصرف ترافیک است.
+                isUserCurrentlyTransferringData = true;
+                window.localStorage.setItem('velox_active_until', String(Math.floor(Date.now() / 1000) + 120)); // تمدید ۲ دقیقه‌ای وضعیت آنلاین
+            }
+        }
+        window.localStorage.setItem('velox_last_traffic', String(usedByte));
+
+        function updateClockAndActivity() {
             const data = langData[currentLang];
+            let isOnline = false;
             
-            // سیستم فوق‌العاده حساس پایش پالس هسته زیر ۳۰ ثانیه
-            if (isConfigEnabled && lastConnectTimestamp && lastConnectTimestamp > 0) {
-                const nowUnixSeconds = Math.floor(Date.now() / 1000);
-                const diffSeconds = nowUnixSeconds - lastConnectTimestamp;
+            // اگر تغییر ترافیک زنده کشف شد یا زمان تمدید آنلاین بودن هنوز منقضی نشده باشد
+            if (isConfigEnabled) {
+                const nowUnix = Math.floor(Date.now() / 1000);
+                let activeUntil = parseInt(window.localStorage.getItem('velox_active_until') || "0");
                 
-                if (diffSeconds >= 0 && diffSeconds <= 30) {
-                    document.getElementById('userActivityBox').innerHTML = `
-                        <span class="online-pulse"></span>
-                        <span class="text-emerald-500 font-black">${data.online}</span>
-                    `;
+                if (isUserCurrentlyTransferringData || nowUnix < activeUntil) {
+                    isOnline = true;
                 } else {
+                    // پایش کمکی: اگر زمان آخرین اتصال زیر ۳۵ ثانیه پیش باشد
+                    const diffSeconds = nowUnix - lastConnectTimestamp;
+                    if (lastConnectTimestamp > 0 && diffSeconds >= 0 && diffSeconds <= 35) {
+                        isOnline = true;
+                    }
+                }
+            }
+            
+            // اعمال تغییرات وضعیت نمایشی آنلاین/آخرین بازدید بدون تغییر ساختار
+            if (isOnline) {
+                document.getElementById('userActivityBox').innerHTML = `
+                    <span class="online-pulse"></span>
+                    <span class="text-emerald-500 font-black">${data.online}</span>
+                `;
+            } else {
+                if (isConfigEnabled && lastConnectTimestamp && lastConnectTimestamp > 0) {
                     try {
                         const locale = currentLang === 'fa' ? 'fa-IR' : 'en-US';
                         const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
@@ -661,9 +689,9 @@
                     } catch (e) {
                         document.getElementById('userActivityBox').innerHTML = `<span class="text-slate-500">${data.neverConnected}</span>`;
                     }
+                } else {
+                    document.getElementById('userActivityBox').innerHTML = `<span class="text-slate-500">${data.neverConnected}</span>`;
                 }
-            } else {
-                document.getElementById('userActivityBox').innerHTML = `<span class="text-slate-500">${data.neverConnected}</span>`;
             }
             
             if (!expireTimestamp || expireTimestamp === 0) {
@@ -715,12 +743,11 @@
         }
 
         if (expireTimestamp && expireTimestamp > 0) {
-            setInterval(updateClockAndDate, 1000);
+            setInterval(updateClockAndActivity, 1000);
         }
         
-        // پولینگ ثانیه‌ای منظم برای واکنش آنی به وضعیت دیسکانکت زیر ۳۰ ثانیه
-        setInterval(updateClockAndDate, 2000);
-        updateClockAndDate();
+        setInterval(updateClockAndActivity, 2000);
+        updateClockAndActivity();
 
         function toggleTheme() {
             const body = document.body;
