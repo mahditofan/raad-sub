@@ -98,6 +98,9 @@
             background: white;
         }
 
+        /* ==========================================
+           استایل پاپ‌آپ سراسری کانفیگ‌ها
+           ========================================== */
         .config-popup-overlay {
             display: none;
             position: fixed;
@@ -164,21 +167,6 @@
             from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
-
-        .online-pulse {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            animation: pulseGreen 1.5s infinite;
-        }
-        @keyframes pulseGreen {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-        }
     </style>
 </head>
 <body class="dark p-4 flex items-center justify-center min-h-screen text-slate-200 dark:text-slate-200">
@@ -223,7 +211,7 @@
 
         <div class="text-center mb-5">
             <h1 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center justify-center gap-1 flex-wrap">
-                <span id="subTitleStatic">مدیریت و وضعیت اشتراق کاربر</span>
+                <span id="subTitleStatic">مدیریت و وضعیت اشتراک کاربر</span>
             </h1>
             <div class="flex justify-center gap-2 mt-2">
                 {{if .enabled}}
@@ -264,10 +252,6 @@
             </div>
             
             <div id="shamsiDate" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">تاریخ انقضا: در حال محاسبه...</div>
-            
-            <div id="userActivityBox" class="text-[11px] font-bold mt-2 pt-2 border-t border-purple-500/10 dark:border-purple-900/20 flex items-center justify-center gap-1.5">
-                <span id="activityStatusText">وضعیت اتصال: در حال بررسی...</span>
-            </div>
         </div>
 
         <div class="bg-purple-50/5 dark:bg-black/40 border border-purple-500/10 dark:border-purple-900/30 p-4 rounded-2xl mb-5">
@@ -528,10 +512,7 @@
                 qrText: "کیو‌آر کد",
                 unlimited: "نامحدود",
                 expiryLabel: "تاریخ انقضا: ",
-                online: "آنلاین",
-                lastSeen: "آخرین بازدید: ",
-                offline: "آفلاین",
-                noExpiry: "Connection Validity: No Expiry",
+                noExpiry: "اعتبار اتصال: بدون انقضا",
                 copySuccess: "با موفقیت در حافظه کپی شد.",
                 allCopySuccess: "همه کانفیگ‌ها کپی شدند.",
                 copyFail: "خطا در کپی سیگنال اشتراک!",
@@ -557,9 +538,6 @@
                 qrText: "QR Code",
                 unlimited: "Unlimited",
                 expiryLabel: "Expiry Date: ",
-                online: "Online",
-                lastSeen: "Last seen: ",
-                offline: "Offline",
                 noExpiry: "Connection Validity: No Expiry",
                 copySuccess: "Successfully copied to clipboard.",
                 allCopySuccess: "All configs copied.",
@@ -623,76 +601,13 @@
                 document.getElementById('valTotal').innerText = data.unlimited;
             }
 
-            updateClockAndActivity();
+            updateClockAndDate();
         }
 
         const expireTimestamp = parseInt("{{.expire}}");
-        let lastConnectRaw = "{{.lastConnect}}";
-        let lastConnectTimestamp = parseInt(lastConnectRaw);
-        const isConfigEnabled = "{{.enabled}}" === "true";
-
-        if (lastConnectTimestamp > 9999999999) { 
-            lastConnectTimestamp = Math.floor(lastConnectTimestamp / 1000);
-        }
-
-        // پیاده‌سازی سیستم فوق‌پیشرفته ردیابی زنده تغییر حجم مصرفی کاربر (Traffic Pulse Tracker)
-        // این سیستم تغییر حجم لحظه‌ای را مستقیماً با مرورگر همگام می‌کند تا باگ برطرف شود.
-        let initialUsedTraffic = usedByte;
-        let isUserCurrentlyTransferringData = false;
         
-        // بررسی وضعیت در حافظه محلی مرورگر کاربر (Local Storage Sync) برای حفظ پایداری
-        if(window.localStorage.getItem('velox_last_traffic') !== null) {
-            let previousSavedTraffic = parseInt(window.localStorage.getItem('velox_last_traffic'));
-            if(usedByte > previousSavedTraffic) {
-                // اگر حجم دریافتی جدید بیشتر از حجم ثبت‌شده قبلی در مرورگر باشد، یعنی کاربر به طور زنده در حال مصرف ترافیک است.
-                isUserCurrentlyTransferringData = true;
-                window.localStorage.setItem('velox_active_until', String(Math.floor(Date.now() / 1000) + 120)); // تمدید ۲ دقیقه‌ای وضعیت آنلاین
-            }
-        }
-        window.localStorage.setItem('velox_last_traffic', String(usedByte));
-
-        function updateClockAndActivity() {
+        function updateClockAndDate() {
             const data = langData[currentLang];
-            let isOnline = false;
-            
-            // اگر تغییر ترافیک زنده کشف شد یا زمان تمدید آنلاین بودن هنوز منقضی نشده باشد
-            if (isConfigEnabled) {
-                const nowUnix = Math.floor(Date.now() / 1000);
-                let activeUntil = parseInt(window.localStorage.getItem('velox_active_until') || "0");
-                
-                if (isUserCurrentlyTransferringData || nowUnix < activeUntil) {
-                    isOnline = true;
-                } else {
-                    // پایش کمکی: اگر زمان آخرین اتصال زیر ۳۵ ثانیه پیش باشد
-                    const diffSeconds = nowUnix - lastConnectTimestamp;
-                    if (lastConnectTimestamp > 0 && diffSeconds >= 0 && diffSeconds <= 35) {
-                        isOnline = true;
-                    }
-                }
-            }
-            
-            // اعمال تغییرات وضعیت نمایشی آنلاین/آخرین بازدید بدون تغییر ساختار
-            if (isOnline) {
-                document.getElementById('userActivityBox').innerHTML = `
-                    <span class="online-pulse"></span>
-                    <span class="text-emerald-500 font-black">${data.online}</span>
-                `;
-            } else {
-                if (isConfigEnabled && lastConnectTimestamp && lastConnectTimestamp > 0) {
-                    try {
-                        const locale = currentLang === 'fa' ? 'fa-IR' : 'en-US';
-                        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-                        const lastSeenStr = new Intl.DateTimeFormat(locale, options).format(new Date(lastConnectTimestamp * 1000));
-                        document.getElementById('userActivityBox').innerHTML = `
-                            <span class="text-slate-500 dark:text-slate-400 font-normal">${data.lastSeen}${lastSeenStr}</span>
-                        `;
-                    } catch (e) {
-                        document.getElementById('userActivityBox').innerHTML = `<span class="text-slate-500">${data.neverConnected}</span>`;
-                    }
-                } else {
-                    document.getElementById('userActivityBox').innerHTML = `<span class="text-slate-500">${data.neverConnected}</span>`;
-                }
-            }
             
             if (!expireTimestamp || expireTimestamp === 0) {
                 document.getElementById('countdownBox').innerHTML = `<span class="text-purple-600 dark:text-purple-400 font-bold text-lg">${data.unlimited}</span>`;
@@ -711,8 +626,8 @@
                 document.getElementById('shamsiDate').innerText = "";
             }
 
-            const nowMsForCountdown = Date.now();
-            const diffMs = expireMs - nowMsForCountdown;
+            const nowMs = Date.now();
+            const diffMs = expireMs - nowMs;
 
             if (diffMs <= 0) {
                 document.getElementById('countdownBox').innerHTML = `<span class="text-rose-500 font-bold text-xs">Subscription has expired! / سرویس منقضی شده است</span>`;
@@ -743,11 +658,9 @@
         }
 
         if (expireTimestamp && expireTimestamp > 0) {
-            setInterval(updateClockAndActivity, 1000);
+            setInterval(updateClockAndDate, 1000);
         }
-        
-        setInterval(updateClockAndActivity, 2000);
-        updateClockAndActivity();
+        updateClockAndDate();
 
         function toggleTheme() {
             const body = document.body;
@@ -800,4 +713,4 @@
         }
     </script>
 </body>
-                            </html>
+    </html>
